@@ -149,19 +149,26 @@ export default function EagleXMonolith() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const panels = gsap.utils.toArray(".h-panel");
-      gsap.to(panels, {
-        xPercent: -100 * (panels.length - 1),
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".h-trigger",
-          pin: true,
-          scrub: 1,
-          start: "top top",
-          end: () => "+=" + (horizontalRef.current?.offsetWidth || 2000),
-        }
+      // Create a matchMedia to only run horizontal scroll on Desktop
+      // On Mobile, it will stack vertically (CSS handles the layout change)
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 768px)", () => {
+        const panels = gsap.utils.toArray(".h-panel");
+        gsap.to(panels, {
+          xPercent: -100 * (panels.length - 1),
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".h-trigger",
+            pin: true,
+            scrub: 1,
+            start: "top top",
+            end: () => "+=" + (horizontalRef.current?.offsetWidth || 2000),
+          }
+        });
       });
 
+      // Text reveal animations can run on both
       gsap.utils.toArray(".text-reveal").forEach((text: any) => {
         gsap.from(text, {
           y: 50,
@@ -178,23 +185,24 @@ export default function EagleXMonolith() {
   }, []);
 
   return (
-    <div ref={containerRef} className="bg-[#050505] text-[#F5F5F5] selection:bg-orange-600 selection:text-black">
+    <div ref={containerRef} className="bg-[#050505] text-[#F5F5F5] selection:bg-orange-600 selection:text-black overflow-x-hidden">
       <HUDOverlay />
       <GridPattern opacity={0.03} />
       
-      <nav className="fixed top-0 left-0 w-full z-110 px-8 py-10 flex justify-between items-start pointer-events-none">
+      <nav className="fixed top-0 left-0 w-full z-110 px-6 md:px-8 py-6 md:py-10 flex justify-between items-start pointer-events-none">
         <div className="flex flex-col gap-1 pointer-events-auto">
           <div className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-orange-600 flex items-center justify-center rounded-sm transition-transform duration-500 group-hover:rotate-180">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-600 flex items-center justify-center rounded-sm transition-transform duration-500 group-hover:rotate-180">
               <Command className="text-black" size={24} />
             </div>
-            <span className="text-4xl font-black uppercase italic tracking-tighter">EagleX</span>
+            <span className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">EagleX</span>
           </div>
-          <span className="text-xs font-mono text-orange-600/40 ml-16">ARCH_VERSION: 2.15.0</span>
+          <span className="text-[10px] md:text-xs font-mono text-orange-600/40 ml-14 md:ml-16">ARCH_VERSION: 2.15.0</span>
         </div>
 
         <div className="flex flex-col items-end gap-6 pointer-events-auto">
-          <div className="bg-black/40 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl flex gap-10">
+          {/* Hidden on mobile, shown on desktop */}
+          <div className="hidden md:flex bg-black/40 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl gap-10">
             {["Services", "Arsenal", "Nexus", "Foundry"].map(item => (
               <MagneticLink key={item}>{item}</MagneticLink>
             ))}
@@ -202,7 +210,7 @@ export default function EagleXMonolith() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 bg-orange-600 text-black font-black uppercase tracking-widest text-xs rounded-lg"
+            className="px-6 py-2 md:px-8 md:py-3 bg-orange-600 text-black font-black uppercase tracking-widest text-[10px] md:text-xs rounded-lg"
           >
             Start Handshake
           </motion.button>
@@ -229,17 +237,17 @@ export default function EagleXMonolith() {
 
         <motion.div 
           style={{ perspective: 1200 }}
-          className="z-10 text-center relative flex flex-col items-center"
+          className="z-10 text-center relative flex flex-col items-center w-full"
         >
           <motion.div 
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "100%", opacity: 1 }}
             transition={{ duration: 1.5, ease: "circOut" }}
-            className="flex items-center justify-center gap-8 mb-16 max-w-5xl px-4"
+            className="flex items-center justify-center gap-4 md:gap-8 mb-8 md:mb-16 max-w-5xl px-4 w-full"
           >
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-orange-600 to-orange-600" />
-            <div className="flex items-center gap-3 font-mono text-xs text-orange-500 tracking-widest uppercase">
-              <div className="w-2 h-2 bg-orange-600 animate-ping rounded-full" />
+            <div className="flex items-center gap-2 md:gap-3 font-mono text-[10px] md:text-xs text-orange-500 tracking-widest uppercase whitespace-nowrap">
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-orange-600 animate-ping rounded-full" />
               <span>Uplink_Established_V.4.2</span>
             </div>
             <div className="h-px flex-1 bg-linear-to-l from-transparent via-orange-600 to-orange-600" />
@@ -257,7 +265,7 @@ export default function EagleXMonolith() {
             </h1>
           </motion.div>
           
-          <div className="mt-28 grid grid-cols-1 md:grid-cols-3 gap-0 bg-white/5 border border-white/10 backdrop-blur-3xl max-w-7xl mx-auto divide-x divide-white/10 overflow-hidden">
+          <div className="mt-12 md:mt-28 grid grid-cols-1 md:grid-cols-3 gap-0 bg-white/5 border border-white/10 backdrop-blur-3xl w-full max-w-7xl mx-auto divide-y md:divide-y-0 md:divide-x divide-white/10 overflow-hidden">
             {[
               { 
                 label: "CORE", 
@@ -283,12 +291,12 @@ export default function EagleXMonolith() {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + (idx * 0.2), duration: 0.8 }}
-                className="group relative p-14 hover:bg-orange-600/3 transition-all duration-700 overflow-hidden"
+                className="group relative p-8 md:p-14 hover:bg-orange-600/3 transition-all duration-700 overflow-hidden text-left"
               >
                 <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-orange-600/40 group-hover:border-orange-600 transition-colors" />
                 <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-orange-600/40 group-hover:border-orange-600 transition-colors" />
                 
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex items-center gap-4 mb-4 md:mb-8">
                   <div className="text-orange-600 group-hover:rotate-360 transition-transform duration-1000">
                     {item.icon}
                   </div>
@@ -297,14 +305,14 @@ export default function EagleXMonolith() {
                   </span>
                 </div>
                 
-                <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter italic leading-none group-hover:text-orange-500 transition-colors">
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-2 md:mb-4 uppercase tracking-tighter italic leading-none group-hover:text-orange-500 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs text-gray-400 font-bold leading-relaxed uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
+                <p className="text-[10px] md:text-xs text-gray-400 font-bold leading-relaxed uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
                   {item.desc}
                 </p>
 
-                <span className="absolute -bottom-6 -right-4 text-7xl font-black text-white/1 italic select-none pointer-events-none group-hover:text-white/3 transition-colors">
+                <span className="absolute -bottom-6 -right-4 text-6xl md:text-7xl font-black text-white/1 italic select-none pointer-events-none group-hover:text-white/3 transition-colors">
                   {item.label}
                 </span>
               </motion.div>
@@ -316,7 +324,7 @@ export default function EagleXMonolith() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.2 }}
-          className="absolute bottom-14 flex flex-col items-center gap-5 cursor-pointer"
+          className="absolute bottom-6 md:bottom-14 flex flex-col items-center gap-5 cursor-pointer"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-px bg-orange-600/30" />
@@ -333,94 +341,100 @@ export default function EagleXMonolith() {
         </motion.div>
       </section>
 
-      <div className="relative py-12 bg-orange-600 border-y-4 border-black overflow-hidden flex select-none z-20 -rotate-1 origin-center scale-105">
+      <div className="relative py-8 md:py-12 bg-orange-600 border-y-4 border-black overflow-hidden flex select-none z-20 -rotate-1 origin-center scale-105">
         <motion.div 
           animate={{ x: [0, -2000] }} 
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="flex whitespace-nowrap items-center gap-20 px-10"
+          className="flex whitespace-nowrap items-center gap-10 md:gap-20 px-10"
         >
           {[...Array(12)].map((_, i) => (
             <React.Fragment key={i}>
-              <span className="text-7xl font-black uppercase text-black italic">Next-Gen Architecture</span>
-              <Zap className="text-black fill-black" size={48} />
-              <span className="text-7xl font-black uppercase text-black italic">Atomic Components</span>
-              <Hexagon className="text-black" size={48} />
+              <span className="text-5xl md:text-7xl font-black uppercase text-black italic">Next-Gen Architecture</span>
+              <Zap className="text-black fill-black" size={32} />
+              <span className="text-5xl md:text-7xl font-black uppercase text-black italic">Atomic Components</span>
+              <Hexagon className="text-black" size={32} />
             </React.Fragment>
           ))}
         </motion.div>
       </div>
 
-      <section className="py-60 px-6 max-w-450 mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+      <section className="py-32 md:py-60 px-6 max-w-450 mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-20">
           <div className="lg:col-span-9">
-            <RevealTitle className="text-sm font-mono text-orange-500 mb-12 tracking-widest uppercase font-black">Section_04 // The Intent</RevealTitle>
-            <p className="text-6xl md:text-[8vw] font-black leading-[0.85] uppercase tracking-tighter">
+            <RevealTitle className="text-xs md:text-sm font-mono text-orange-500 mb-6 md:mb-12 tracking-widest uppercase font-black">Section_04 // The Intent</RevealTitle>
+            <p className="text-5xl md:text-[8vw] font-black leading-[0.85] uppercase tracking-tighter">
               We do not build for <span className="text-gray-700 italic">convenience.</span> We build for <span className="text-orange-600">absolute dominance.</span>
             </p>
           </div>
-          <div className="lg:col-span-3 flex flex-col justify-end gap-12">
-            <div className="p-10 bg-white/5 border border-white/10 rounded-3xl space-y-6 group cursor-pointer">
-              <Activity className="text-orange-600" size={40} />
-              <p className="text-gray-400 text-sm leading-relaxed uppercase font-bold tracking-widest group-hover:text-white transition-colors">
+          <div className="lg:col-span-3 flex flex-col justify-end gap-8 md:gap-12">
+            <div className="p-8 md:p-10 bg-white/5 border border-white/10 rounded-3xl space-y-6 group cursor-pointer">
+              <Activity className="text-orange-600" size={32} />
+              <p className="text-gray-400 text-xs md:text-sm leading-relaxed uppercase font-bold tracking-widest group-hover:text-white transition-colors">
                 Our methodology prioritizes high-stakes engineering over aesthetic fluff. We architect digital machinery.
               </p>
             </div>
-            <div className="text-[12vw] font-black text-white/3 leading-none uppercase italic select-none">Impact</div>
+            <div className="text-[12vw] font-black text-white/3 leading-none uppercase italic select-none hidden md:block">Impact</div>
           </div>
         </div>
       </section>
 
-      <div className="h-trigger relative h-screen overflow-hidden">
-        <div ref={horizontalRef} className="flex h-full w-[400vw]">
-          <div className="h-panel w-screen h-full bg-[#080808] flex flex-col justify-center px-10 md:px-40 relative border-r border-white/5">
-             <div className="absolute top-20 right-20 flex flex-col items-end">
-                <span className="text-[25vw] font-black text-white/2 leading-none uppercase">Compute</span>
+      {/* Horizontal Scroll Trigger Area - Adjusted to Stack on Mobile */}
+      <div className="h-trigger relative min-h-screen md:h-screen md:overflow-hidden">
+        <div ref={horizontalRef} className="flex flex-col md:flex-row w-full md:h-full md:w-[400vw]">
+          
+          {/* Panel 1 */}
+          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-[#080808] flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
+             <div className="absolute top-10 right-6 md:top-20 md:right-20 flex flex-col items-end">
+                <span className="text-[15vw] md:text-[25vw] font-black text-white/2 leading-none uppercase">Compute</span>
              </div>
-             <div className="max-w-4xl space-y-12 relative z-10">
-                <Cpu size={100} className="text-orange-600 animate-pulse" />
-                <h3 className="text-8xl md:text-9xl font-black uppercase italic tracking-tighter">Distributed<br />Core Logic</h3>
-                <p className="text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl">
+             <div className="max-w-4xl space-y-8 md:space-y-12 relative z-10">
+                <Cpu size={60} className="text-orange-600 animate-pulse md:w-[100px] md:h-[100px]" />
+                <h3 className="text-5xl md:text-9xl font-black uppercase italic tracking-tighter">Distributed<br />Core Logic</h3>
+                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl">
                   Rust-based micro-services synchronized through gRPC. We eliminate the overhead of traditional REST for sub-millisecond internal communication.
                 </p>
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-4 md:gap-6">
                   {["MEMORY-SAFE", "LOW-LATENCY", "gRPC", "K8S"].map(tag => (
-                    <span key={tag} className="px-4 py-1 border border-orange-600/30 text-xs font-mono text-orange-500">{tag}</span>
+                    <span key={tag} className="px-3 py-1 md:px-4 border border-orange-600/30 text-[10px] md:text-xs font-mono text-orange-500">{tag}</span>
                   ))}
                 </div>
              </div>
           </div>
 
-          <div className="h-panel w-screen h-full bg-[#0a0a0a] flex flex-col justify-center px-10 md:px-40 relative border-r border-white/5">
-             <div className="max-w-4xl space-y-12 ml-auto text-right relative z-10">
-                <Database size={100} className="text-orange-600 ml-auto" />
-                <h3 className="text-8xl md:text-9xl font-black uppercase tracking-tighter">Elastic<br />State Trees</h3>
-                <p className="text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl ml-auto">
+          {/* Panel 2 */}
+          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-[#0a0a0a] flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
+             <div className="max-w-4xl space-y-8 md:space-y-12 ml-auto text-right relative z-10">
+                <Database size={60} className="text-orange-600 ml-auto md:w-[100px] md:h-[100px]" />
+                <h3 className="text-5xl md:text-9xl font-black uppercase tracking-tighter">Elastic<br />State Trees</h3>
+                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl ml-auto">
                   Global data persistence across 24 regions with conflict-free replicated data types (CRDTs). Your application state is consistent, everywhere.
                 </p>
-                <div className="flex gap-6 justify-end">
+                <div className="flex gap-4 md:gap-6 justify-end flex-wrap">
                   {["CRDT", "POSTGRES", "REDIS", "EDGE"].map(tag => (
-                    <span key={tag} className="px-4 py-1 border border-white/10 text-xs font-mono">{tag}</span>
+                    <span key={tag} className="px-3 py-1 md:px-4 border border-white/10 text-[10px] md:text-xs font-mono">{tag}</span>
                   ))}
                 </div>
              </div>
           </div>
 
-          <div className="h-panel w-screen h-full bg-white text-black flex flex-col justify-center px-10 md:px-40 relative border-r border-white/5">
-             <div className="max-w-4xl space-y-12 relative z-10">
-                <Shield size={100} className="text-orange-600" />
-                <h3 className="text-8xl md:text-9xl font-black uppercase italic tracking-tighter">Zero-Trust<br />Fortress</h3>
-                <p className="text-2xl font-bold leading-relaxed max-w-2xl">
+          {/* Panel 3 */}
+          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-white text-black flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
+             <div className="max-w-4xl space-y-8 md:space-y-12 relative z-10">
+                <Shield size={60} className="text-orange-600 md:w-[100px] md:h-[100px]" />
+                <h3 className="text-5xl md:text-9xl font-black uppercase italic tracking-tighter">Zero-Trust<br />Fortress</h3>
+                <p className="text-lg md:text-2xl font-bold leading-relaxed max-w-2xl">
                   Military-grade encryption for data at rest and in transit. Automated penetration testing is built into our CI/CD pipelines.
                 </p>
              </div>
           </div>
 
-          <div className="h-panel w-screen h-full bg-orange-600 text-black flex flex-col justify-center px-10 md:px-40 relative">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
-                <h3 className="text-[12vw] font-black uppercase leading-[0.8] italic tracking-tighter">Peak<br />Apex</h3>
-                <div className="space-y-10">
-                   <p className="text-4xl font-black uppercase leading-tight">Handover complete. <br /> Systems operational.</p>
-                   <p className="text-lg font-bold opacity-70 leading-relaxed uppercase">
+          {/* Panel 4 */}
+          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-orange-600 text-black flex flex-col justify-center px-6 md:px-40 relative py-20 md:py-0">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
+                <h3 className="text-[20vw] md:text-[12vw] font-black uppercase leading-[0.8] italic tracking-tighter">Peak<br />Apex</h3>
+                <div className="space-y-6 md:space-y-10">
+                   <p className="text-3xl md:text-4xl font-black uppercase leading-tight">Handover complete. <br /> Systems operational.</p>
+                   <p className="text-base md:text-lg font-bold opacity-70 leading-relaxed uppercase">
                      We don't deliver projects; we deliver finished technical realities. Your new infrastructure is ready for the next decade.
                    </p>
                    <div className="h-2 w-full bg-black/20" />
@@ -430,22 +444,22 @@ export default function EagleXMonolith() {
         </div>
       </div>
 
-      <section className="py-60 px-6 max-w-475 mx-auto overflow-hidden">
+      <section className="py-32 md:py-60 px-6 max-w-475 mx-auto overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="flex justify-between items-end mb-24"
+          className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-24 gap-8"
         >
           <div className="space-y-4">
             <span className="text-orange-600 font-mono text-xs uppercase tracking-widest font-black italic block animate-pulse">
               [ SYSTEM_LOAD: ARSENAL_MODULE ]
             </span>
-            <h2 className="text-8xl font-black uppercase italic tracking-tighter leading-[0.8]">
+            <h2 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-[0.8]">
               Tools of<br />Dominance
             </h2>
           </div>
-          <p className="max-w-md text-gray-500 text-sm font-bold uppercase tracking-widest leading-relaxed text-right border-r-2 border-orange-600 pr-6">
+          <p className="max-w-md text-gray-500 text-xs md:text-sm font-bold uppercase tracking-widest leading-relaxed text-left md:text-right border-l-2 md:border-l-0 md:border-r-2 border-orange-600 pl-6 md:pl-0 md:pr-6">
             Our custom component library is engineered for performance benchmarks that outclass standard React patterns by 40%.
           </p>
         </motion.div>
@@ -457,25 +471,24 @@ export default function EagleXMonolith() {
           variants={{
             show: { transition: { staggerChildren: 0.1 } }
           }}
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 h-550 md:h-325"
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-325"
         >
           <motion.div 
             variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }}
-            whileHover={{ scale: 0.98 }}
-            className="md:col-span-8 bg-[#0a0a0a] border border-white/10 rounded-[3rem] p-16 flex flex-col justify-between group overflow-hidden relative cursor-none"
+            className="md:col-span-8 bg-[#0a0a0a] border border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 flex flex-col justify-between group overflow-hidden relative min-h-[400px] md:min-h-0"
           >
             <div className="absolute inset-0 bg-linear-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="flex justify-between items-start z-10">
               <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}>
-                <Layers className="text-orange-600" size={64} />
+                <Layers className="text-orange-600" size={48} />
               </motion.div>
-              <span className="text-gray-700 font-mono text-xs uppercase font-black tracking-widest">Ref_742-ALPHA</span>
+              <span className="text-gray-700 font-mono text-[10px] md:text-xs uppercase font-black tracking-widest">Ref_742-ALPHA</span>
             </div>
-            <div className="z-10">
-              <h3 className="text-6xl md:text-9xl font-black uppercase italic leading-[0.85] mb-10 group-hover:skew-x-2 transition-transform duration-700">
+            <div className="z-10 mt-10 md:mt-0">
+              <h3 className="text-5xl md:text-9xl font-black uppercase italic leading-[0.85] mb-6 md:mb-10 group-hover:skew-x-2 transition-transform duration-700">
                 Atomic<br /><span className="text-orange-600">Design</span> Lab
               </h3>
-              <p className="text-gray-400 text-xl max-w-2xl leading-relaxed uppercase font-bold tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+              <p className="text-gray-400 text-sm md:text-xl max-w-2xl leading-relaxed uppercase font-bold tracking-tight opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-500 md:translate-y-4 group-hover:translate-y-0">
                 A proprietary UI framework built on top of native Tailwind and Framer, optimized for the highest rendering fidelity.
               </p>
             </div>
@@ -483,7 +496,7 @@ export default function EagleXMonolith() {
 
           <motion.div 
             variants={{ hidden: { opacity: 0, x: 50 }, show: { opacity: 1, x: 0 } }}
-            className="md:col-span-4 bg-orange-600 rounded-[3rem] p-12 flex flex-col justify-between group cursor-pointer overflow-hidden relative"
+            className="md:col-span-4 bg-orange-600 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 flex flex-col justify-between group cursor-pointer overflow-hidden relative min-h-[300px] md:min-h-0"
           >
             <motion.div 
               animate={{ y: [0, -20, 0] }} 
@@ -492,44 +505,44 @@ export default function EagleXMonolith() {
             >
               GO
             </motion.div>
-            <Rocket className="text-black group-hover:-translate-y-20 group-hover:translate-x-20 transition-all duration-700 ease-in-out" size={56} />
+            <Rocket className="text-black group-hover:-translate-y-20 group-hover:translate-x-20 transition-all duration-700 ease-in-out" size={48} />
             <div className="space-y-4 z-10">
-              <h4 className="text-5xl font-black uppercase italic text-black leading-none">Blitz<br />Release</h4>
+              <h4 className="text-4xl md:text-5xl font-black uppercase italic text-black leading-none">Blitz<br />Release</h4>
               <p className="text-black font-bold uppercase text-xs tracking-widest opacity-70">CI/CD deployment in under 60 seconds.</p>
             </div>
           </motion.div>
 
           <motion.div 
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="md:col-span-3 bg-[#111] border border-white/5 rounded-[3rem] p-10 flex flex-col justify-between hover:bg-orange-600 transition-all duration-500 group"
+            className="md:col-span-3 bg-[#111] border border-white/5 rounded-[2rem] md:rounded-[3rem] p-8 md:p-10 flex flex-col justify-between hover:bg-orange-600 transition-all duration-500 group min-h-[200px] md:min-h-0"
           >
-            <Terminal className="text-orange-600 group-hover:text-black transition-colors" size={40} />
-            <h4 className="text-2xl font-black uppercase tracking-tighter group-hover:text-black">CLI Interface</h4>
+            <Terminal className="text-orange-600 group-hover:text-black transition-colors" size={32} />
+            <h4 className="text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:text-black">CLI Interface</h4>
           </motion.div>
 
           <motion.div 
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="md:col-span-3 bg-[#0a0a0a] border border-white/10 rounded-[3rem] p-10 flex flex-col justify-between hover:border-orange-600 transition-colors group"
+            className="md:col-span-3 bg-[#0a0a0a] border border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 md:p-10 flex flex-col justify-between hover:border-orange-600 transition-colors group min-h-[200px] md:min-h-0"
           >
-            <Shield className="text-orange-600 group-hover:scale-110 transition-transform" size={40} />
-            <h4 className="text-2xl font-black uppercase tracking-tighter">Audit Logic</h4>
+            <Shield className="text-orange-600 group-hover:scale-110 transition-transform" size={32} />
+            <h4 className="text-xl md:text-2xl font-black uppercase tracking-tighter">Audit Logic</h4>
           </motion.div>
 
           <motion.div 
             variants={{ hidden: { opacity: 0, scale: 0.9 }, show: { opacity: 1, scale: 1 } }}
-            className="md:col-span-6 bg-[#111] border border-white/5 rounded-[3rem] p-12 flex items-center justify-between group overflow-hidden relative"
+            className="md:col-span-6 bg-[#111] border border-white/5 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 flex items-center justify-between group overflow-hidden relative min-h-[200px] md:min-h-0"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ea580c15_0%,transparent_70%)] group-hover:scale-150 transition-transform duration-1000" />
-            <div className="space-y-4 z-10">
-              <h4 className="text-4xl font-black uppercase italic tracking-tighter group-hover:text-orange-500 transition-colors">Neural Sync</h4>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Real-time AI telemetry integration.</p>
+            <div className="space-y-2 md:space-y-4 z-10">
+              <h4 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter group-hover:text-orange-500 transition-colors">Neural Sync</h4>
+              <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Real-time AI telemetry integration.</p>
             </div>
-            <ArrowUpRight className="text-white opacity-20 group-hover:opacity-100 group-hover:translate-x-4 group-hover:-translate-y-4 transition-all duration-500" size={80} />
+            <ArrowUpRight className="text-white opacity-20 group-hover:opacity-100 group-hover:translate-x-4 group-hover:-translate-y-4 transition-all duration-500" size={60} />
           </motion.div>
         </motion.div>
       </section>
 
-      <section className="py-60 bg-[#020202] relative overflow-hidden border-y border-white/5">
+      <section className="py-32 md:py-60 bg-[#020202] relative overflow-hidden border-y border-white/5">
         <motion.div 
           style={{ opacity: useTransform(scrollYProgress, [0.6, 0.7, 0.8], [0, 0.2, 0]) }}
           className="absolute inset-0"
@@ -537,20 +550,20 @@ export default function EagleXMonolith() {
           <GridPattern size={40} />
         </motion.div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-40">
-          <div className="space-y-24">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 md:gap-40">
+          <div className="space-y-12 md:space-y-24">
             <div className="overflow-hidden">
               <motion.h2 
                 initial={{ y: "100%" }}
                 whileInView={{ y: 0 }}
                 transition={{ duration: 0.8, ease: "circOut" }}
-                className="text-7xl font-black uppercase italic leading-none"
+                className="text-5xl md:text-7xl font-black uppercase italic leading-none"
               >
                 System<br /><span className="text-orange-600">Specs</span>
               </motion.h2>
             </div>
 
-            <div className="space-y-12">
+            <div className="space-y-8 md:space-y-12">
               {[
                 { label: "Compiler", value: "Custom LLVM Optimization", id: "C-01" },
                 { label: "Language", value: "Typed Rust & TS 5.4", id: "L-02" },
@@ -562,13 +575,13 @@ export default function EagleXMonolith() {
                   initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="border-b border-white/10 pb-8 flex justify-between items-end group cursor-crosshair"
+                  className="border-b border-white/10 pb-6 md:pb-8 flex justify-between items-end group cursor-crosshair"
                 >
                   <div className="space-y-2">
-                    <span className="text-orange-600 font-mono text-xs uppercase tracking-widest block group-hover:translate-x-2 transition-transform">
+                    <span className="text-orange-600 font-mono text-[10px] md:text-xs uppercase tracking-widest block group-hover:translate-x-2 transition-transform">
                       // {spec.label}
                     </span>
-                    <div className="text-3xl font-black uppercase group-hover:text-orange-500 transition-colors tracking-tighter">
+                    <div className="text-xl md:text-3xl font-black uppercase group-hover:text-orange-500 transition-colors tracking-tighter">
                       {spec.value}
                     </div>
                   </div>
@@ -581,27 +594,27 @@ export default function EagleXMonolith() {
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
-            className="bg-[#0a0a0a] rounded-3xl p-12 border border-white/5 flex flex-col gap-10 shadow-[0_0_50px_rgba(234,88,12,0.05)]"
+            className="bg-[#0a0a0a] rounded-3xl p-6 md:p-12 border border-white/5 flex flex-col gap-6 md:gap-10 shadow-[0_0_50px_rgba(234,88,12,0.05)]"
           >
-            <div className="flex justify-between items-center border-b border-white/5 pb-8">
+            <div className="flex justify-between items-center border-b border-white/5 pb-6 md:pb-8">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-orange-600 rounded-full animate-ping" />
-                <span className="text-xs font-mono text-orange-500 uppercase tracking-widest italic">Live_System_Logs.log</span>
+                <span className="text-[10px] md:text-xs font-mono text-orange-500 uppercase tracking-widest italic">Live_System_Logs.log</span>
               </div>
-              <div className="text-xs font-mono text-gray-600">UPTIME: 99.999%</div>
+              <div className="text-[10px] md:text-xs font-mono text-gray-600">UPTIME: 99.999%</div>
             </div>
 
-            <div className="font-mono text-xs text-gray-500 space-y-4 h-112.5 overflow-hidden">
+            <div className="font-mono text-[10px] md:text-xs text-gray-500 space-y-4 h-96 md:h-112.5 overflow-hidden">
               {[...Array(24)].map((_, i) => (
                 <motion.div 
                   key={i}
                   initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="flex gap-6 border-l border-orange-600/20 pl-4 hover:bg-white/5 transition-colors"
+                  className="flex gap-2 md:gap-6 border-l border-orange-600/20 pl-4 hover:bg-white/5 transition-colors"
                 >
-                  <span className="text-orange-600/40">[{1735313000 + i}]</span>
-                  <span className="text-gray-400 italic">UPLINK_ESTABLISHED: NODE_{i}_SYNC</span>
+                  <span className="text-orange-600/40 hidden md:inline">[{1735313000 + i}]</span>
+                  <span className="text-gray-400 italic break-all">UPLINK_ESTABLISHED: NODE_{i}_SYNC</span>
                   <span className="ml-auto text-green-500/40">NOMINAL</span>
                 </motion.div>
               ))}
@@ -609,7 +622,7 @@ export default function EagleXMonolith() {
 
             <motion.button 
               whileHover={{ scale: 0.98, backgroundColor: "#fff", color: "#000" }}
-              className="mt-auto w-full py-4 border border-white/10 font-black uppercase tracking-widest text-xs transition-all"
+              className="mt-auto w-full py-4 border border-white/10 font-black uppercase tracking-widest text-[10px] md:text-xs transition-all"
             >
               Download Full Handover Audit
             </motion.button>
@@ -617,9 +630,9 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      <section className="py-60 bg-white text-black relative overflow-hidden">
+      <section className="py-32 md:py-60 bg-white text-black relative overflow-hidden">
         <div className="max-w-450 mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-40 gap-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-24 md:mb-40 gap-10">
             <motion.h2 
               initial={{ x: -100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
@@ -631,13 +644,13 @@ export default function EagleXMonolith() {
             <motion.p 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              className="max-w-md text-xl font-bold uppercase tracking-tight text-gray-400 italic border-l-4 border-black pl-8"
+              className="max-w-md text-sm md:text-xl font-bold uppercase tracking-tight text-gray-400 italic border-l-4 border-black pl-8"
             >
               Our execution pipeline is a relentless cycle of iteration until the result is mathematically perfect.
             </motion.p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-20">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-20">
             {[
               { id: "01", title: "Discovery", desc: "Mapping the neural pathways of your business and bottlenecks." },
               { id: "02", title: "Refinement", desc: "Constructing architecture with zero tolerance for technical debt." },
@@ -649,20 +662,20 @@ export default function EagleXMonolith() {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.2 }}
-                className="space-y-8 group relative"
+                className="space-y-6 md:space-y-8 group relative"
               >
                 <motion.div 
                   whileHover={{ x: 20, skewX: -10 }}
-                  className="text-9xl font-black text-gray-100 group-hover:text-orange-600 transition-all duration-700 cursor-default select-none"
+                  className="text-7xl md:text-9xl font-black text-gray-100 group-hover:text-orange-600 transition-all duration-700 cursor-default select-none"
                 >
                   {item.id}
                 </motion.div>
                 
                 <div className="relative z-10">
-                  <h4 className="text-3xl font-black uppercase tracking-tighter group-hover:translate-x-2 transition-transform">
+                  <h4 className="text-2xl md:text-3xl font-black uppercase tracking-tighter group-hover:translate-x-2 transition-transform">
                     {item.title}
                   </h4>
-                  <p className="text-gray-500 font-medium leading-relaxed uppercase text-xs tracking-widest mt-4">
+                  <p className="text-gray-500 font-medium leading-relaxed uppercase text-[10px] md:text-xs tracking-widest mt-4">
                     {item.desc}
                   </p>
                 </div>
@@ -680,7 +693,7 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      <section className="py-60 px-6 border-t border-white/5 relative overflow-hidden">
+      <section className="py-32 md:py-60 px-6 border-t border-white/5 relative overflow-hidden">
         <motion.div 
           initial={{ x: -100, opacity: 0 }}
           whileInView={{ x: 0, opacity: 0.02 }}
@@ -690,7 +703,7 @@ export default function EagleXMonolith() {
           Alliances Alliances Alliances
         </motion.div>
 
-        <div className="max-w-7xl mx-auto text-center space-y-40 relative z-10">
+        <div className="max-w-7xl mx-auto text-center space-y-20 md:space-y-40 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="show"
@@ -702,7 +715,7 @@ export default function EagleXMonolith() {
                 transition: { staggerChildren: 0.2 }
               }
             }}
-            className="flex flex-col md:flex-row justify-between items-center gap-20 opacity-40 hover:opacity-100 transition-opacity duration-700 grayscale hover:grayscale-0"
+            className="flex flex-col md:flex-row justify-between items-center gap-10 md:gap-20 opacity-40 hover:opacity-100 transition-opacity duration-700 grayscale hover:grayscale-0"
           >
             {["NEXUS_INC", "QUANTUM_SYS", "APEX_VOID", "HYPER_DRIVE"].map((logo) => (
               <motion.div
@@ -712,7 +725,7 @@ export default function EagleXMonolith() {
                   show: { y: 0, opacity: 1 }
                 }}
                 whileHover={{ scale: 1.1, skewX: -10 }}
-                className="text-4xl font-black uppercase italic tracking-tighter cursor-crosshair transition-all"
+                className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter cursor-crosshair transition-all"
               >
                 {logo}
               </motion.div>
@@ -725,7 +738,7 @@ export default function EagleXMonolith() {
                 initial={{ y: "100%" }}
                 whileInView={{ y: 0 }}
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter leading-none max-w-6xl mx-auto"
+                className="text-3xl md:text-8xl font-black uppercase italic tracking-tighter leading-none max-w-6xl mx-auto"
               >
                 "EagleX redefined our <span className="text-orange-600">roadmap.</span> Speed is <span className="italic">terrifying</span>, precision is <span className="text-gray-400">absolute.</span>"
               </motion.blockquote>
@@ -738,7 +751,7 @@ export default function EagleXMonolith() {
               className="flex items-center justify-center gap-6 overflow-hidden"
             >
               <div className="h-px w-12 bg-orange-600" />
-              <span className="font-mono text-orange-600 text-xs uppercase tracking-widest whitespace-nowrap">
+              <span className="font-mono text-orange-600 text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap">
                 VP Engineering, NEXUS GROUP
               </span>
             </motion.div>
@@ -769,51 +782,51 @@ export default function EagleXMonolith() {
           <motion.span 
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ repeat: Infinity, duration: 2 }}
-            className="text-xs font-black uppercase tracking-widest mb-12 block"
+            className="text-[10px] md:text-xs font-black uppercase tracking-widest mb-8 md:mb-12 block"
           >
             Connection_Request_Incoming
           </motion.span>
           
           <h2 className="text-[14vw] font-black uppercase leading-[0.7] tracking-tighter italic">
             Enter<br />
-            <span className="text-transparent stroke-black transition-all duration-500 group-hover:text-black" style={{ WebkitTextStroke: "3px black" }}>Nexus</span>
+            <span className="text-transparent stroke-black transition-all duration-500 group-hover:text-black" style={{ WebkitTextStroke: "1px black" }}>Nexus</span>
           </h2>
           
           <motion.div 
             whileHover={{ y: -10 }}
-            className="mt-20 flex justify-center items-center gap-12"
+            className="mt-12 md:mt-20 flex justify-center items-center gap-6 md:gap-12"
           >
-            <div className="w-32 h-32 bg-black rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-zinc-900 transition-all duration-500">
-               <ArrowUpRight className="text-orange-600 group-hover:rotate-45 transition-transform duration-500" size={64} />
+            <div className="w-20 h-20 md:w-32 md:h-32 bg-black rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-zinc-900 transition-all duration-500">
+               <ArrowUpRight className="text-orange-600 group-hover:rotate-45 transition-transform duration-500" size={40} />
             </div>
-            <p className="text-4xl font-black uppercase italic underline decoration-8 underline-offset-8">Start Protocol</p>
+            <p className="text-xl md:text-4xl font-black uppercase italic underline decoration-4 md:decoration-8 underline-offset-8">Start Protocol</p>
           </motion.div>
         </motion.div>
       </section>
 
-      <footer className="bg-[#020202] pt-60 pb-12 px-6 md:px-20 border-t border-white/5 relative z-20">
+      <footer className="bg-[#020202] pt-32 md:pt-60 pb-12 px-6 md:px-20 border-t border-white/5 relative z-20">
         <div className="max-w-500 mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 mb-60">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 md:gap-32 mb-32 md:mb-60">
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="lg:col-span-6 space-y-16"
+              className="lg:col-span-6 space-y-12 md:space-y-16"
             >
               <div className="flex items-center gap-6 group">
                  <motion.div 
                   whileHover={{ rotate: 180 }}
-                  className="w-16 h-16 bg-orange-600 rounded-sm flex items-center justify-center cursor-pointer"
+                  className="w-12 h-12 md:w-16 md:h-16 bg-orange-600 rounded-sm flex items-center justify-center cursor-pointer"
                  >
-                    <Command className="text-black" size={32} />
+                    <Command className="text-black" size={24} />
                  </motion.div>
-                 <span className="text-7xl font-black uppercase italic tracking-tighter transition-all group-hover:text-orange-600">EagleX</span>
+                 <span className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter transition-all group-hover:text-orange-600">EagleX</span>
               </div>
-              <p className="text-3xl text-zinc-500 font-medium leading-relaxed max-w-2xl uppercase tracking-tighter">
+              <p className="text-xl md:text-3xl text-zinc-500 font-medium leading-relaxed max-w-2xl uppercase tracking-tighter">
                 Architecting the future of global enterprise. Zero-latency. Zero-failure. <span className="text-white">Absolute-precision.</span>
               </p>
               
-              <div className="flex gap-12">
+              <div className="flex gap-8 md:gap-12 flex-wrap">
                  {[
                    { label: "Operational Hub", val: "San Francisco, CA" },
                    { label: "Network Node", val: "Stockholm, SE" }
@@ -824,14 +837,14 @@ export default function EagleXMonolith() {
                     transition={{ delay: 0.2 * idx }}
                     key={idx} className="space-y-2 border-l border-white/10 pl-6"
                    >
-                      <span className="text-orange-600 font-mono text-xs uppercase tracking-widest">{hub.label}</span>
-                      <p className="text-xs font-bold uppercase tracking-widest leading-tight">{hub.val}</p>
+                      <span className="text-orange-600 font-mono text-[10px] md:text-xs uppercase tracking-widest">{hub.label}</span>
+                      <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest leading-tight">{hub.val}</p>
                    </motion.div>
                  ))}
               </div>
             </motion.div>
             
-            <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-3 gap-20">
+            <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
               {[
                 { title: "Sub-Networks", links: ["Foundry", "Arsenal", "Infra", "Stack", "Clients"] },
                 { title: "Sync_Links", links: ["Twitter / X", "GitHub", "LinkedIn", "Discord", "Behance"] },
@@ -841,17 +854,17 @@ export default function EagleXMonolith() {
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * idx }}
-                  key={idx} className="space-y-10"
+                  key={idx} className="space-y-6 md:space-y-10"
                 >
-                   <h5 className="text-xs font-mono text-orange-500 uppercase tracking-widest font-black flex items-center gap-2">
+                   <h5 className="text-[10px] md:text-xs font-mono text-orange-500 uppercase tracking-widest font-black flex items-center gap-2">
                      <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" /> {group.title}
                    </h5>
-                   <ul className="space-y-4">
+                   <ul className="space-y-2 md:space-y-4">
                      {group.links.map(l => (
                        <li key={l} className="overflow-hidden">
                           <motion.a 
                             whileHover={{ x: 10, color: "#ea580c" }}
-                            href="#" className="text-lg font-black uppercase transition-all tracking-tight block"
+                            href="#" className="text-base md:text-lg font-black uppercase transition-all tracking-tight block"
                           >
                             {l}
                           </motion.a>
@@ -863,28 +876,28 @@ export default function EagleXMonolith() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-end gap-10 border-t border-white/5 pt-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 border-t border-white/5 pt-12">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-10 text-xs font-black uppercase tracking-widest text-zinc-700">
+              <div className="flex flex-wrap items-center gap-6 md:gap-10 text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-700">
                 <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1 }}>TX_LAT: 0.12ms</motion.span>
                 <span>STATUS: STABLE_ALPHA</span>
                 <span>ENCRYPT: AES_GCM_X4</span>
               </div>
-              <div className="text-xs font-mono text-zinc-600 uppercase tracking-widest">
+              <div className="text-[10px] md:text-xs font-mono text-zinc-600 uppercase tracking-widest">
                 © 2025 EagleX Global Nexus ● system_build_v4.2.0-final
               </div>
             </div>
             
-            <div className="flex flex-col items-end gap-4">
-               <div className="flex gap-12 font-black uppercase text-xs">
+            <div className="flex flex-col items-end gap-4 w-full md:w-auto">
+               <div className="flex gap-12 font-black uppercase text-[10px] md:text-xs">
                  <span className="cursor-pointer hover:text-orange-600 transition-colors tracking-widest">Handshake Nominal</span>
                  <span className="cursor-pointer hover:text-orange-600 transition-colors tracking-widest">Node Operational</span>
                </div>
                <motion.div 
                 initial={{ width: 0 }}
-                whileInView={{ width: "20rem" }}
+                whileInView={{ width: "100%" }}
                 transition={{ duration: 1.5, ease: "circOut" }}
-                className="h-1 bg-linear-to-r from-transparent via-orange-600/30 to-transparent" 
+                className="h-1 w-full md:w-[20rem] bg-linear-to-r from-transparent via-orange-600/30 to-transparent" 
                />
             </div>
           </div>
