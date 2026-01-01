@@ -9,44 +9,23 @@ import {
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
-  ArrowUpRight, Code2, Cpu, Globe, Zap, Fingerprint, 
+  ArrowUpRight, Cpu, Zap, 
   Layers, Shield, Terminal, Database, Rocket, 
-  Users, Workflow, Activity, ChevronDown, Command, 
-  MousePointer2, Radio, Server, Share2, Binary, 
-  Box, Eye, HardDrive, Hexagon, Infinity as InfinityIcon, 
-  Microscope, Monitor, Network, PenTool, 
-  RefreshCcw, Search, Settings, Smartphone, Tablet, 
-  Target, Triangle, Waves, Lock, Unlock, Key, 
-  Cloud, CloudLightning, BarChart3, PieChart, LineChart
+  Activity, 
+  Hexagon
 } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+// Import Shared Components
+import Navbar from "./Components/Navbar";
+import Hero from "./Components/Hero";
+import Footer from "./Components/Footer";
+import { GridPattern, RevealTitle } from "./Components/shared";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const GridPattern = ({ size = 40, opacity = 0.1 }) => (
-  <div className="absolute inset-0 pointer-events-none" style={{ opacity }}>
-    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="innerGrid" width={size} height={size} patternUnits="userSpaceOnUse">
-          <path d={`M ${size} 0 L 0 0 0 ${size}`} fill="none" stroke="white" strokeWidth="0.5" />
-        </pattern>
-        <pattern id="mainGrid" width={size * 5} height={size * 5} patternUnits="userSpaceOnUse">
-          <rect width={size * 5} height={size * 5} fill="url(#innerGrid)" />
-          <path d={`M ${size * 5} 0 L 0 0 0 ${size * 5}`} fill="none" stroke="white" strokeWidth="1" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#mainGrid)" />
-    </svg>
-  </div>
-);
-
+// Keep HUDOverlay local as it relies on specific page state/interval
 const HUDOverlay = () => {
   const [metrics, setMetrics] = useState({ cpu: 0, ram: 0, ping: 0 });
 
@@ -103,45 +82,6 @@ const HUDOverlay = () => {
   );
 };
 
-const RevealTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => {
-  return (
-    <div className={cn("overflow-hidden block", className)}>
-      <motion.div
-        initial={{ y: "100%", rotate: 5 }}
-        whileInView={{ y: 0, rotate: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-};
-
-const MagneticLink = ({ children, href = "#" }: { children: React.ReactNode, href?: string }) => {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-
-  const move = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = ref.current!.getBoundingClientRect();
-    setPos({ x: (clientX - (left + width / 2)) * 0.4, y: (clientY - (top + height / 2)) * 0.4 });
-  };
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      onMouseMove={move}
-      onMouseLeave={() => setPos({ x: 0, y: 0 })}
-      animate={{ x: pos.x, y: pos.y }}
-      className="relative text-xs font-black uppercase tracking-widest hover:text-orange-500 transition-colors py-2 px-4"
-    >
-      {children}
-    </motion.a>
-  );
-};
-
 export default function EagleXMonolith() {
   const containerRef = useRef<HTMLDivElement>(null);
   const horizontalRef = useRef<HTMLDivElement>(null);
@@ -149,26 +89,21 @@ export default function EagleXMonolith() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Create a matchMedia to only run horizontal scroll on Desktop
-      // On Mobile, it will stack vertically (CSS handles the layout change)
-      const mm = gsap.matchMedia();
-
-      mm.add("(min-width: 768px)", () => {
-        const panels = gsap.utils.toArray(".h-panel");
-        gsap.to(panels, {
-          xPercent: -100 * (panels.length - 1),
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".h-trigger",
-            pin: true,
-            scrub: 1,
-            start: "top top",
-            end: () => "+=" + (horizontalRef.current?.offsetWidth || 2000),
-          }
-        });
+      // Horizontal Scroll GSAP Logic
+      const panels = gsap.utils.toArray(".h-panel");
+      gsap.to(panels, {
+        xPercent: -100 * (panels.length - 1),
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".h-trigger",
+          pin: true,
+          scrub: 1,
+          start: "top top",
+          end: () => "+=" + (horizontalRef.current?.offsetWidth || 2000),
+        }
       });
 
-      // Text reveal animations can run on both
+      // Text reveal animations for the rest of the page
       gsap.utils.toArray(".text-reveal").forEach((text: any) => {
         gsap.from(text, {
           y: 50,
@@ -185,162 +120,14 @@ export default function EagleXMonolith() {
   }, []);
 
   return (
-    <div ref={containerRef} className="bg-[#050505] text-[#F5F5F5] selection:bg-orange-600 selection:text-black overflow-x-hidden">
+    <div ref={containerRef} className="bg-[#050505] text-[#F5F5F5] selection:bg-orange-600 selection:text-black overflow-x-hidden w-full">
       <HUDOverlay />
       <GridPattern opacity={0.03} />
       
-      <nav className="fixed top-0 left-0 w-full z-110 px-6 md:px-8 py-6 md:py-10 flex justify-between items-start pointer-events-none">
-        <div className="flex flex-col gap-1 pointer-events-auto">
-          <div className="flex items-center gap-3 group">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-600 flex items-center justify-center rounded-sm transition-transform duration-500 group-hover:rotate-180">
-              <Command className="text-black" size={24} />
-            </div>
-            <span className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">EagleX</span>
-          </div>
-          <span className="text-[10px] md:text-xs font-mono text-orange-600/40 ml-14 md:ml-16">ARCH_VERSION: 2.15.0</span>
-        </div>
+      <Navbar />
+      <Hero />
 
-        <div className="flex flex-col items-end gap-6 pointer-events-auto">
-          {/* Hidden on mobile, shown on desktop */}
-          <div className="hidden md:flex bg-black/40 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl gap-10">
-            {["Services", "Arsenal", "Nexus", "Foundry"].map(item => (
-              <MagneticLink key={item}>{item}</MagneticLink>
-            ))}
-          </div>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-2 md:px-8 md:py-3 bg-orange-600 text-black font-black uppercase tracking-widest text-[10px] md:text-xs rounded-lg"
-          >
-            Start Handshake
-          </motion.button>
-        </div>
-      </nav>
-
-      <section className="h-screen relative flex flex-col justify-center items-center px-6 overflow-hidden bg-[#020202]">
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-          <div className="absolute top-1/4 left-10 w-72 h-72 border border-orange-600/20 rounded-full animate-[spin_25s_linear_infinite]" />
-          <div className="absolute bottom-1/4 right-10 w-125 h-125 border border-orange-600/10 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: '110vh', opacity: [0, 0.5, 0] }}
-                transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, delay: Math.random() * 5 }}
-                className="absolute w-px h-20 bg-linear-to-b from-transparent via-orange-600 to-transparent"
-                style={{ left: `${Math.random() * 100}%` }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <motion.div 
-          style={{ perspective: 1200 }}
-          className="z-10 text-center relative flex flex-col items-center w-full"
-        >
-          <motion.div 
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: "100%", opacity: 1 }}
-            transition={{ duration: 1.5, ease: "circOut" }}
-            className="flex items-center justify-center gap-4 md:gap-8 mb-8 md:mb-16 max-w-5xl px-4 w-full"
-          >
-            <div className="h-px flex-1 bg-linear-to-r from-transparent via-orange-600 to-orange-600" />
-            <div className="flex items-center gap-2 md:gap-3 font-mono text-[10px] md:text-xs text-orange-500 tracking-widest uppercase whitespace-nowrap">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-orange-600 animate-ping rounded-full" />
-              <span>Uplink_Established_V.4.2</span>
-            </div>
-            <div className="h-px flex-1 bg-linear-to-l from-transparent via-orange-600 to-orange-600" />
-          </motion.div>
-          
-          <motion.div
-            initial={{ rotateX: 35, opacity: 0, scale: 0.9 }}
-            animate={{ rotateX: 0, opacity: 1, scale: 1 }}
-            whileHover={{ rotateX: -10, rotateY: 5 }}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative cursor-default select-none"
-          >
-            <h1 className="text-[17vw] md:text-[20vw] font-black uppercase leading-[0.7] tracking-tighter italic text-white group">
-              EagleX<br />
-            </h1>
-          </motion.div>
-          
-          <div className="mt-12 md:mt-28 grid grid-cols-1 md:grid-cols-3 gap-0 bg-white/5 border border-white/10 backdrop-blur-3xl w-full max-w-7xl mx-auto divide-y md:divide-y-0 md:divide-x divide-white/10 overflow-hidden">
-            {[
-              { 
-                label: "CORE", 
-                title: "Atomic Sync", 
-                desc: "Next-gen distributed kernels built for absolute zero-latency execution.",
-                icon: <Cpu size={16} /> 
-              },
-              { 
-                label: "FORTRESS", 
-                title: "Quantum Logic", 
-                desc: "Zero-trust protocols as standard. Hardened logic gates at every network node.",
-                icon: <Shield size={16} />
-              },
-              { 
-                label: "SPEED", 
-                title: "Blitz Protocol", 
-                desc: "Proprietary deployment pipelines that physically outpace the global CDN.",
-                icon: <Zap size={16} />
-              }
-            ].map((item, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + (idx * 0.2), duration: 0.8 }}
-                className="group relative p-8 md:p-14 hover:bg-orange-600/3 transition-all duration-700 overflow-hidden text-left"
-              >
-                <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-orange-600/40 group-hover:border-orange-600 transition-colors" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-orange-600/40 group-hover:border-orange-600 transition-colors" />
-                
-                <div className="flex items-center gap-4 mb-4 md:mb-8">
-                  <div className="text-orange-600 group-hover:rotate-360 transition-transform duration-1000">
-                    {item.icon}
-                  </div>
-                  <span className="text-orange-600 font-mono text-xs tracking-widest uppercase font-black opacity-50 group-hover:opacity-100 transition-opacity">
-                    {item.label}
-                  </span>
-                </div>
-                
-                <h3 className="text-2xl md:text-3xl font-black text-white mb-2 md:mb-4 uppercase tracking-tighter italic leading-none group-hover:text-orange-500 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-[10px] md:text-xs text-gray-400 font-bold leading-relaxed uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
-                  {item.desc}
-                </p>
-
-                <span className="absolute -bottom-6 -right-4 text-6xl md:text-7xl font-black text-white/1 italic select-none pointer-events-none group-hover:text-white/3 transition-colors">
-                  {item.label}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.2 }}
-          className="absolute bottom-6 md:bottom-14 flex flex-col items-center gap-5 cursor-pointer"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-px bg-orange-600/30" />
-            <span className="text-xs font-mono uppercase tracking-widest text-orange-600 animate-pulse">Engage_Scroll</span>
-            <div className="w-12 h-px bg-orange-600/30" />
-          </div>
-          <motion.div 
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="w-6 h-10 border border-orange-600/50 rounded-full flex justify-center p-1.5 backdrop-blur-sm"
-          >
-            <motion.div className="w-1.5 h-1.5 bg-orange-600 rounded-full shadow-[0_0_12px_#ea580c]" />
-          </motion.div>
-        </motion.div>
-      </section>
-
+      {/* Marquee Section */}
       <div className="relative py-8 md:py-12 bg-orange-600 border-y-4 border-black overflow-hidden flex select-none z-20 -rotate-1 origin-center scale-105">
         <motion.div 
           animate={{ x: [0, -2000] }} 
@@ -358,11 +145,12 @@ export default function EagleXMonolith() {
         </motion.div>
       </div>
 
-      <section className="py-32 md:py-60 px-6 max-w-450 mx-auto">
+      {/* Intent Section */}
+      <section className="py-20 md:py-60 px-6 max-w-450 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-20">
           <div className="lg:col-span-9">
             <RevealTitle className="text-xs md:text-sm font-mono text-orange-500 mb-6 md:mb-12 tracking-widest uppercase font-black">Section_04 // The Intent</RevealTitle>
-            <p className="text-5xl md:text-[8vw] font-black leading-[0.85] uppercase tracking-tighter">
+            <p className="text-4xl md:text-[8vw] font-black leading-[0.9] md:leading-[0.85] uppercase tracking-tighter">
               We do not build for <span className="text-gray-700 italic">convenience.</span> We build for <span className="text-orange-600">absolute dominance.</span>
             </p>
           </div>
@@ -378,12 +166,12 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      {/* Horizontal Scroll Trigger Area - Adjusted to Stack on Mobile */}
-      <div className="h-trigger relative min-h-screen md:h-screen md:overflow-hidden">
-        <div ref={horizontalRef} className="flex flex-col md:flex-row w-full md:h-full md:w-[400vw]">
+      {/* Horizontal Scroll Trigger Area */}
+      <div className="h-trigger relative h-screen overflow-hidden">
+        <div ref={horizontalRef} className="flex flex-row h-full w-[400vw]">
           
           {/* Panel 1 */}
-          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-[#080808] flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
+          <div className="h-panel w-screen h-full bg-[#080808] flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
              <div className="absolute top-10 right-6 md:top-20 md:right-20 flex flex-col items-end">
                 <span className="text-[15vw] md:text-[25vw] font-black text-white/2 leading-none uppercase">Compute</span>
              </div>
@@ -402,14 +190,14 @@ export default function EagleXMonolith() {
           </div>
 
           {/* Panel 2 */}
-          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-[#0a0a0a] flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
-             <div className="max-w-4xl space-y-8 md:space-y-12 ml-auto text-right relative z-10">
-                <Database size={60} className="text-orange-600 ml-auto md:w-[100px] md:h-[100px]" />
+          <div className="h-panel w-screen h-full bg-[#0a0a0a] flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
+             <div className="max-w-4xl space-y-8 md:space-y-12 ml-auto text-left md:text-right relative z-10">
+                <Database size={60} className="text-orange-600 md:ml-auto md:w-[100px] md:h-[100px]" />
                 <h3 className="text-5xl md:text-9xl font-black uppercase tracking-tighter">Elastic<br />State Trees</h3>
-                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl ml-auto">
+                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl md:ml-auto">
                   Global data persistence across 24 regions with conflict-free replicated data types (CRDTs). Your application state is consistent, everywhere.
                 </p>
-                <div className="flex gap-4 md:gap-6 justify-end flex-wrap">
+                <div className="flex gap-4 md:gap-6 md:justify-end flex-wrap">
                   {["CRDT", "POSTGRES", "REDIS", "EDGE"].map(tag => (
                     <span key={tag} className="px-3 py-1 md:px-4 border border-white/10 text-[10px] md:text-xs font-mono">{tag}</span>
                   ))}
@@ -418,7 +206,7 @@ export default function EagleXMonolith() {
           </div>
 
           {/* Panel 3 */}
-          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-white text-black flex flex-col justify-center px-6 md:px-40 relative border-b md:border-r border-white/5 py-20 md:py-0">
+          <div className="h-panel w-screen h-full bg-white text-black flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
              <div className="max-w-4xl space-y-8 md:space-y-12 relative z-10">
                 <Shield size={60} className="text-orange-600 md:w-[100px] md:h-[100px]" />
                 <h3 className="text-5xl md:text-9xl font-black uppercase italic tracking-tighter">Zero-Trust<br />Fortress</h3>
@@ -429,7 +217,7 @@ export default function EagleXMonolith() {
           </div>
 
           {/* Panel 4 */}
-          <div className="h-panel w-full md:w-screen h-screen md:h-full bg-orange-600 text-black flex flex-col justify-center px-6 md:px-40 relative py-20 md:py-0">
+          <div className="h-panel w-screen h-full bg-orange-600 text-black flex flex-col justify-center px-6 md:px-40 relative">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
                 <h3 className="text-[20vw] md:text-[12vw] font-black uppercase leading-[0.8] italic tracking-tighter">Peak<br />Apex</h3>
                 <div className="space-y-6 md:space-y-10">
@@ -444,7 +232,8 @@ export default function EagleXMonolith() {
         </div>
       </div>
 
-      <section className="py-32 md:py-60 px-6 max-w-475 mx-auto overflow-hidden">
+      {/* Bento Grid / Tools Section */}
+      <section className="py-24 md:py-60 px-6 max-w-475 mx-auto overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -542,7 +331,8 @@ export default function EagleXMonolith() {
         </motion.div>
       </section>
 
-      <section className="py-32 md:py-60 bg-[#020202] relative overflow-hidden border-y border-white/5">
+      {/* System Specs Section */}
+      <section className="py-24 md:py-60 bg-[#020202] relative overflow-hidden border-y border-white/5">
         <motion.div 
           style={{ opacity: useTransform(scrollYProgress, [0.6, 0.7, 0.8], [0, 0.2, 0]) }}
           className="absolute inset-0"
@@ -550,7 +340,7 @@ export default function EagleXMonolith() {
           <GridPattern size={40} />
         </motion.div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 md:gap-40">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-40">
           <div className="space-y-12 md:space-y-24">
             <div className="overflow-hidden">
               <motion.h2 
@@ -604,7 +394,7 @@ export default function EagleXMonolith() {
               <div className="text-[10px] md:text-xs font-mono text-gray-600">UPTIME: 99.999%</div>
             </div>
 
-            <div className="font-mono text-[10px] md:text-xs text-gray-500 space-y-4 h-96 md:h-112.5 overflow-hidden">
+            <div className="font-mono text-[10px] md:text-xs text-gray-500 space-y-4 h-64 md:h-112.5 overflow-hidden">
               {[...Array(24)].map((_, i) => (
                 <motion.div 
                   key={i}
@@ -630,9 +420,10 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      <section className="py-32 md:py-60 bg-white text-black relative overflow-hidden">
+      {/* Cycle Section */}
+      <section className="py-24 md:py-60 bg-white text-black relative overflow-hidden">
         <div className="max-w-450 mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-24 md:mb-40 gap-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-40 gap-10">
             <motion.h2 
               initial={{ x: -100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
@@ -693,7 +484,8 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      <section className="py-32 md:py-60 px-6 border-t border-white/5 relative overflow-hidden">
+      {/* Alliances Section */}
+      <section className="py-24 md:py-60 px-6 border-t border-white/5 relative overflow-hidden">
         <motion.div 
           initial={{ x: -100, opacity: 0 }}
           whileInView={{ x: 0, opacity: 0.02 }}
@@ -759,6 +551,7 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
+      {/* CTA Section */}
       <section className="h-screen flex flex-col justify-center items-center relative overflow-hidden bg-orange-600 text-black">
         <div className="absolute inset-0 opacity-10 flex flex-col gap-10 select-none py-10">
           {[...Array(8)].map((_, i) => (
@@ -804,105 +597,7 @@ export default function EagleXMonolith() {
         </motion.div>
       </section>
 
-      <footer className="bg-[#020202] pt-32 md:pt-60 pb-12 px-6 md:px-20 border-t border-white/5 relative z-20">
-        <div className="max-w-500 mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 md:gap-32 mb-32 md:mb-60">
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:col-span-6 space-y-12 md:space-y-16"
-            >
-              <div className="flex items-center gap-6 group">
-                 <motion.div 
-                  whileHover={{ rotate: 180 }}
-                  className="w-12 h-12 md:w-16 md:h-16 bg-orange-600 rounded-sm flex items-center justify-center cursor-pointer"
-                 >
-                    <Command className="text-black" size={24} />
-                 </motion.div>
-                 <span className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter transition-all group-hover:text-orange-600">EagleX</span>
-              </div>
-              <p className="text-xl md:text-3xl text-zinc-500 font-medium leading-relaxed max-w-2xl uppercase tracking-tighter">
-                Architecting the future of global enterprise. Zero-latency. Zero-failure. <span className="text-white">Absolute-precision.</span>
-              </p>
-              
-              <div className="flex gap-8 md:gap-12 flex-wrap">
-                 {[
-                   { label: "Operational Hub", val: "San Francisco, CA" },
-                   { label: "Network Node", val: "Stockholm, SE" }
-                 ].map((hub, idx) => (
-                   <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.2 * idx }}
-                    key={idx} className="space-y-2 border-l border-white/10 pl-6"
-                   >
-                      <span className="text-orange-600 font-mono text-[10px] md:text-xs uppercase tracking-widest">{hub.label}</span>
-                      <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest leading-tight">{hub.val}</p>
-                   </motion.div>
-                 ))}
-              </div>
-            </motion.div>
-            
-            <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
-              {[
-                { title: "Sub-Networks", links: ["Foundry", "Arsenal", "Infra", "Stack", "Clients"] },
-                { title: "Sync_Links", links: ["Twitter / X", "GitHub", "LinkedIn", "Discord", "Behance"] },
-                { title: "Protocols", links: ["Privacy", "Security", "Terms", "Cookies"] }
-              ].map((group, idx) => (
-                <motion.div 
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * idx }}
-                  key={idx} className="space-y-6 md:space-y-10"
-                >
-                   <h5 className="text-[10px] md:text-xs font-mono text-orange-500 uppercase tracking-widest font-black flex items-center gap-2">
-                     <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" /> {group.title}
-                   </h5>
-                   <ul className="space-y-2 md:space-y-4">
-                     {group.links.map(l => (
-                       <li key={l} className="overflow-hidden">
-                          <motion.a 
-                            whileHover={{ x: 10, color: "#ea580c" }}
-                            href="#" className="text-base md:text-lg font-black uppercase transition-all tracking-tight block"
-                          >
-                            {l}
-                          </motion.a>
-                       </li>
-                     ))}
-                   </ul>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 border-t border-white/5 pt-12">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-6 md:gap-10 text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-700">
-                <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1 }}>TX_LAT: 0.12ms</motion.span>
-                <span>STATUS: STABLE_ALPHA</span>
-                <span>ENCRYPT: AES_GCM_X4</span>
-              </div>
-              <div className="text-[10px] md:text-xs font-mono text-zinc-600 uppercase tracking-widest">
-                © 2025 EagleX Global Nexus ● system_build_v4.2.0-final
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-4 w-full md:w-auto">
-               <div className="flex gap-12 font-black uppercase text-[10px] md:text-xs">
-                 <span className="cursor-pointer hover:text-orange-600 transition-colors tracking-widest">Handshake Nominal</span>
-                 <span className="cursor-pointer hover:text-orange-600 transition-colors tracking-widest">Node Operational</span>
-               </div>
-               <motion.div 
-                initial={{ width: 0 }}
-                whileInView={{ width: "100%" }}
-                transition={{ duration: 1.5, ease: "circOut" }}
-                className="h-1 w-full md:w-[20rem] bg-linear-to-r from-transparent via-orange-600/30 to-transparent" 
-               />
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <style jsx global>{`
         @keyframes spin {
