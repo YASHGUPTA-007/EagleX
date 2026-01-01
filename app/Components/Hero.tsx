@@ -46,7 +46,7 @@ const FloatingCard = ({ children, x, y, rotate, delay }: any) => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.8, delay }}
     style={{ x, y, rotate }}
-    className="absolute z-0 hidden lg:block pointer-events-none"
+    className="absolute z-20 hidden lg:block pointer-events-none"
   >
     <div className="bg-black/80 backdrop-blur-xl border border-orange-500/30 p-4 rounded-xl shadow-[0_0_30px_-5px_rgba(234,88,12,0.3)]">
       {children}
@@ -61,10 +61,16 @@ export default function HeroHighVoltage() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Smooth out the mouse values
+  // Smooth out the mouse values for foreground
   const springConfig = { damping: 20, stiffness: 100 };
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
+
+  // Background Parallax (Moves opposite to mouse)
+  const bgConfig = { damping: 30, stiffness: 80 };
+  // Increased parallax movement slightly for the logo to feel more dynamic
+  const bgX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["8%", "-8%"]), bgConfig);
+  const bgY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["8%", "-8%"]), bgConfig);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = ref.current?.getBoundingClientRect();
@@ -74,7 +80,6 @@ export default function HeroHighVoltage() {
       const mouseXFromCenter = e.clientX - rect.left - width / 2;
       const mouseYFromCenter = e.clientY - rect.top - height / 2;
       
-      // Normalize values between -0.5 and 0.5
       mouseX.set(mouseXFromCenter / width);
       mouseY.set(mouseYFromCenter / height);
     }
@@ -93,28 +98,53 @@ export default function HeroHighVoltage() {
       className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center perspective-1000"
       style={{ perspective: "1000px" }}
     >
-      {/* --- Dynamic Background Grid --- */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
+      {/* --- FIXED: Eagle Background Layer --- */}
+      <motion.div 
+        // Increased scale slightly so the parallax doesn't show edges
+        style={{ x: bgX, y: bgY, scale: 1.2 }} 
+        className="absolute inset-0 z-0 pointer-events-none select-none flex items-center justify-center"
+      >
+        {/* UPDATED IMAGE TAG FOR YOUR LOGO */}
+        <motion.img 
+            initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} // Full opacity for the logo
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            // Assuming Eaglex.png is in your public folder based on your context image
+            src="/Eaglex.png" 
+            alt="Eagle X Robo Logo"
+            // Changed to object-contain to show full wingspan, added padding
+            className="absolute inset-0 w-full h-full object-contain object-center p-4 md:p-20"
+        />
         
-        {/* Animated Floor Grid */}
+        {/* Color Tint - Keep for atmosphere */}
+        <div className="absolute inset-0 bg-orange-900/20 mix-blend-overlay" />
+
+        {/* Lighter Vignette - Focuses attention on center */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#000_100%)]" />
+        
+        {/* Bottom Fade - Ensures the floor blends */}
+        <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black via-black/50 to-transparent" />
+      </motion.div>
+
+
+      {/* --- Dynamic Background Grid (Overlaying the eagle) --- */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-10" />
+        
         <motion.div 
           animate={{ backgroundPosition: ["0px 0px", "0px 100px"] }}
           transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-          className="absolute bottom-0 left-[-50%] right-[-50%] h-[50vh] bg-[linear-gradient(to_right,#ea580c_1px,transparent_1px),linear-gradient(to_bottom,#ea580c_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20 [transform:perspective(500px)_rotateX(60deg)] origin-bottom"
+          className="absolute bottom-0 left-[-50%] right-[-50%] h-[50vh] bg-[linear-gradient(to_right,#ea580c_1px,transparent_1px),linear-gradient(to_bottom,#ea580c_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30 [transform:perspective(500px)_rotateX(60deg)] origin-bottom"
         />
-        
-        {/* Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black z-10" />
       </div>
 
       {/* --- 3D Content Container --- */}
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="relative z-20 w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center"
+        className="relative z-30 w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center mt-[-5vh]" // Slight negative margin to center text better over the eagle body
       >
         
-        {/* Floating Decor Elements (Behind Text) */}
+        {/* Floating Decor Elements */}
         <FloatingCard x={-350} y={-100} rotate={-10} delay={0.5}>
           <div className="flex items-center gap-3 text-orange-500 font-mono text-xs">
             <Terminal size={16} />
@@ -137,43 +167,40 @@ export default function HeroHighVoltage() {
         {/* --- Main Typography --- */}
         <div className="relative text-center transform-style-3d">
           
-          {/* Glowing Backlight */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-orange-600/30 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-
           {/* Label */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/30 bg-orange-500/10 mb-6 backdrop-blur-md"
           >
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
             <span className="text-xs font-mono text-orange-400 tracking-widest uppercase">
-              Eagle x
+              Eagle x System
             </span>
           </motion.div>
 
-          {/* Massive Headline */}
-          <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-[0.85] uppercase mb-8">
+          {/* Headline */}
+          <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-[0.85] uppercase mb-8 drop-shadow-2xl">
             <div className="flex flex-col items-center gap-2">
               <span className="relative inline-block hover:scale-[1.02] transition-transform duration-300">
                 We Engineer
-                {/* Glitch Overlay */}
                 <span className="absolute inset-0 text-red-500 opacity-50 mix-blend-screen translate-x-[2px] pointer-events-none">We Engineer</span>
                 <span className="absolute inset-0 text-blue-500 opacity-50 mix-blend-screen -translate-x-[2px] pointer-events-none">We Engineer</span>
               </span>
               
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-700">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-700 filter drop-shadow-[0_0_25px_rgba(234,88,12,0.5)]">
                 <ScrambleText text="DOMINANCE" />
               </span>
             </div>
           </h1>
 
-          <p className="max-w-xl mx-auto text-gray-400 text-lg md:text-xl font-medium leading-relaxed mb-10">
+          <p className="max-w-xl mx-auto text-gray-200 text-lg md:text-xl font-medium leading-relaxed mb-10 text-shadow-lg">
             Forging high-performance digital infrastructure for the next generation of 
             <span className="text-white font-bold"> unicorn founders.</span>
           </p>
 
-          {/* Action Area */}
+          {/* Action Buttons */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-5">
             <button className="group relative w-full md:w-auto px-8 py-4 bg-orange-600 text-black font-bold uppercase tracking-wider overflow-hidden">
               <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-200 skew-x-12" />
@@ -182,7 +209,7 @@ export default function HeroHighVoltage() {
               </span>
             </button>
             
-            <button className="group w-full md:w-auto px-8 py-4 bg-transparent border border-white/20 text-white font-bold uppercase tracking-wider hover:bg-white/5 transition-all">
+            <button className="group w-full md:w-auto px-8 py-4 bg-black/40 backdrop-blur-sm border border-white/20 text-white font-bold uppercase tracking-wider hover:bg-white/10 transition-all">
               <span className="flex items-center justify-center gap-2">
                  <Activity size={18} className="text-orange-500 group-hover:animate-pulse" /> View Metrics
               </span>
@@ -193,7 +220,7 @@ export default function HeroHighVoltage() {
       </motion.div>
 
       {/* --- Bottom Scrolling Ticker --- */}
-      <div className="absolute bottom-0 left-0 w-full border-t border-white/10 bg-black/80 backdrop-blur-md py-4 overflow-hidden z-30">
+      <div className="absolute bottom-0 left-0 w-full border-t border-white/10 bg-black/90 backdrop-blur-xl py-4 overflow-hidden z-40">
         <motion.div 
           animate={{ x: [0, -1000] }}
           transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
