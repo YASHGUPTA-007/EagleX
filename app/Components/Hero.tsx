@@ -66,9 +66,8 @@ export default function HeroHighVoltage() {
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
 
-  // Background Parallax (Moves opposite to mouse)
+  // Background Parallax
   const bgConfig = { damping: 30, stiffness: 80 };
-  // Increased parallax movement slightly for the logo to feel more dynamic
   const bgX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["8%", "-8%"]), bgConfig);
   const bgY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["8%", "-8%"]), bgConfig);
 
@@ -100,34 +99,27 @@ export default function HeroHighVoltage() {
     >
       {/* --- FIXED: Eagle Background Layer --- */}
       <motion.div 
-        // Increased scale slightly so the parallax doesn't show edges
         style={{ x: bgX, y: bgY, scale: 1.2 }} 
         className="absolute inset-0 z-0 pointer-events-none select-none flex items-center justify-center"
       >
-        {/* UPDATED IMAGE TAG FOR YOUR LOGO */}
         <motion.img 
             initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} // Full opacity for the logo
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            // Assuming Eaglex.png is in your public folder based on your context image
-            src="/Eaglex.png" 
+            src="/Eaglex2.png" 
             alt="Eagle X Robo Logo"
-            // Changed to object-contain to show full wingspan, added padding
-            className="absolute inset-0 w-full h-full object-contain object-center p-4 md:p-20"
+            // --- FIX 1: CENTERED IMAGE ---
+            // 'object-center': Ensures the eagle is in the middle of the screen.
+            // 'scale-125 md:scale-100': Makes it slightly larger on mobile so it fills the background nicely.
+            className="absolute inset-0 w-full h-full object-contain object-center scale-100 md:scale-90 -translate-y-35 md:translate-y-0"
         />
         
-        {/* Color Tint - Keep for atmosphere */}
         <div className="absolute inset-0 bg-orange-900/20 mix-blend-overlay" />
-
-        {/* Lighter Vignette - Focuses attention on center */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#000_100%)]" />
-        
-        {/* Bottom Fade - Ensures the floor blends */}
         <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black via-black/50 to-transparent" />
       </motion.div>
 
-
-      {/* --- Dynamic Background Grid (Overlaying the eagle) --- */}
+      {/* --- Dynamic Background Grid --- */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-10" />
         
@@ -141,10 +133,14 @@ export default function HeroHighVoltage() {
       {/* --- 3D Content Container --- */}
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="relative z-30 w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center mt-[-5vh]" // Slight negative margin to center text better over the eagle body
+        // --- FIX 2: CENTERED CONTENT ---
+        // Removed 'mt-[45vh]'. 
+        // 'mt-0' allows flexbox to center this container perfectly over the image.
+        // 'md:mt-[-5vh]' keeps the slight adjustment for desktop.
+        className="relative z-30 w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center mt-0 md:mt-[-5vh]"
       >
         
-        {/* Floating Decor Elements */}
+        {/* Floating Decor Elements (Desktop Only) */}
         <FloatingCard x={-350} y={-100} rotate={-10} delay={0.5}>
           <div className="flex items-center gap-3 text-orange-500 font-mono text-xs">
             <Terminal size={16} />
@@ -163,11 +159,9 @@ export default function HeroHighVoltage() {
           <div className="mt-2 font-bold text-xl text-white">98.4%</div>
         </FloatingCard>
 
-
         {/* --- Main Typography --- */}
         <div className="relative text-center transform-style-3d">
           
-          {/* Label */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -181,7 +175,7 @@ export default function HeroHighVoltage() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-[0.85] uppercase mb-8 drop-shadow-2xl">
+          <h1 className="text-5xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] uppercase mb-8 drop-shadow-2xl">
             <div className="flex flex-col items-center gap-2">
               <span className="relative inline-block hover:scale-[1.02] transition-transform duration-300">
                 We Engineer
@@ -200,7 +194,6 @@ export default function HeroHighVoltage() {
             <span className="text-white font-bold"> unicorn founders.</span>
           </p>
 
-          {/* Action Buttons */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-5">
             <button className="group relative w-full md:w-auto px-8 py-4 bg-orange-600 text-black font-bold uppercase tracking-wider overflow-hidden">
               <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-200 skew-x-12" />
