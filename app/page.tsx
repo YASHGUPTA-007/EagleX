@@ -25,7 +25,6 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Keep HUDOverlay local as it relies on specific page state/interval
 const HUDOverlay = () => {
   const [metrics, setMetrics] = useState({ cpu: 0, ram: 0, ping: 0 });
 
@@ -103,7 +102,7 @@ export default function EagleXMonolith() {
         }
       });
 
-      // Text reveal animations for the rest of the page
+      // Text reveal animations
       gsap.utils.toArray(".text-reveal").forEach((text: any) => {
         gsap.from(text, {
           y: 50,
@@ -166,63 +165,109 @@ export default function EagleXMonolith() {
         </div>
       </section>
 
-      {/* Horizontal Scroll Trigger Area */}
+      {/* Horizontal Scroll Trigger Area - Split Panel Layout */}
+     {/* Horizontal Scroll Trigger Area - Split Panel Layout */}
       <div className="h-trigger relative h-screen overflow-hidden">
         <div ref={horizontalRef} className="flex flex-row h-full w-[400vw]">
           
-          {/* Panel 1 */}
-          <div className="h-panel w-screen h-full bg-[#080808] flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
-             <div className="absolute top-10 right-6 md:top-20 md:right-20 flex flex-col items-end">
-                <span className="text-[15vw] md:text-[25vw] font-black text-white/2 leading-none uppercase">Compute</span>
-             </div>
-             <div className="max-w-4xl space-y-8 md:space-y-12 relative z-10">
-                <Cpu size={60} className="text-orange-600 animate-pulse md:w-[100px] md:h-[100px]" />
-                <h3 className="text-5xl md:text-9xl font-black uppercase italic tracking-tighter">Distributed<br />Core Logic</h3>
-                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl">
+          {/* Panel 1: Distributed Core Logic (UPDATED WITH IMAGE) */}
+          <div className="h-panel w-screen h-full bg-[#080808] border-r border-white/5 flex flex-col md:grid md:grid-cols-2 relative">
+             {/* Content Side */}
+             <div className="p-8 md:p-24 flex flex-col justify-center relative z-10 order-2 md:order-1 h-1/2 md:h-full">
+                <div className="mb-8">
+                   <Cpu size={48} className="text-orange-600 animate-pulse mb-6" />
+                   <h3 className="text-4xl md:text-8xl font-black uppercase italic tracking-tighter leading-[0.9]">Distributed<br />Core Logic</h3>
+                </div>
+                <p className="text-sm md:text-xl text-gray-500 font-medium leading-relaxed max-w-xl">
                   Rust-based micro-services synchronized through gRPC. We eliminate the overhead of traditional REST for sub-millisecond internal communication.
                 </p>
-                <div className="flex flex-wrap gap-4 md:gap-6">
+                <div className="flex flex-wrap gap-4 mt-8">
                   {["MEMORY-SAFE", "LOW-LATENCY", "gRPC", "K8S"].map(tag => (
-                    <span key={tag} className="px-3 py-1 md:px-4 border border-orange-600/30 text-[10px] md:text-xs font-mono text-orange-500">{tag}</span>
+                    <span key={tag} className="px-3 py-1 border border-orange-600/30 text-[10px] md:text-xs font-mono text-orange-500">{tag}</span>
                   ))}
                 </div>
              </div>
+             {/* Image Side - Added High Visibility Image */}
+             <div className="relative h-1/2 md:h-full w-full order-1 md:order-2 overflow-hidden border-b md:border-b-0 md:border-l border-white/5">
+                <div className="absolute inset-0 bg-orange-600/10 z-10 pointer-events-none" />
+                <img 
+                  src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2670&auto=format&fit=crop" 
+                  alt="Microprocessor Logic" 
+                  className="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity duration-1000 scale-105 hover:scale-100" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-[#080808] via-transparent to-transparent" />
+             </div>
           </div>
 
-          {/* Panel 2 */}
-          <div className="h-panel w-screen h-full bg-[#0a0a0a] flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
-             <div className="max-w-4xl space-y-8 md:space-y-12 ml-auto text-left md:text-right relative z-10">
-                <Database size={60} className="text-orange-600 md:ml-auto md:w-[100px] md:h-[100px]" />
-                <h3 className="text-5xl md:text-9xl font-black uppercase tracking-tighter">Elastic<br />State Trees</h3>
-                <p className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed max-w-2xl md:ml-auto">
+          {/* Panel 2: Elastic State Trees */}
+          <div className="h-panel w-screen h-full bg-[#0a0a0a] border-r border-white/5 flex flex-col md:grid md:grid-cols-2 relative">
+             {/* Image Side - Left on Desktop */}
+             <div className="relative h-1/2 md:h-full w-full overflow-hidden border-b md:border-b-0 md:border-r border-white/5">
+                <img 
+                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" 
+                  alt="Global Network" 
+                  className="w-full h-full object-cover opacity-50 hover:opacity-80 transition-opacity duration-1000 grayscale hover:grayscale-0" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent" />
+             </div>
+             {/* Content Side */}
+             <div className="p-8 md:p-24 flex flex-col justify-center text-left md:text-right relative z-10 h-1/2 md:h-full">
+                <div className="mb-8 md:ml-auto md:flex md:flex-col md:items-end">
+                   <Database size={48} className="text-orange-600 mb-6" />
+                   <h3 className="text-4xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9]">Elastic<br />State Trees</h3>
+                </div>
+                <p className="text-sm md:text-xl text-gray-500 font-medium leading-relaxed max-w-xl md:ml-auto">
                   Global data persistence across 24 regions with conflict-free replicated data types (CRDTs). Your application state is consistent, everywhere.
                 </p>
-                <div className="flex gap-4 md:gap-6 md:justify-end flex-wrap">
+                <div className="flex flex-wrap gap-4 mt-8 md:justify-end">
                   {["CRDT", "POSTGRES", "REDIS", "EDGE"].map(tag => (
-                    <span key={tag} className="px-3 py-1 md:px-4 border border-white/10 text-[10px] md:text-xs font-mono">{tag}</span>
+                    <span key={tag} className="px-3 py-1 border border-white/10 text-[10px] md:text-xs font-mono">{tag}</span>
                   ))}
                 </div>
              </div>
           </div>
 
-          {/* Panel 3 */}
-          <div className="h-panel w-screen h-full bg-white text-black flex flex-col justify-center px-6 md:px-40 relative border-r border-white/5">
-             <div className="max-w-4xl space-y-8 md:space-y-12 relative z-10">
-                <Shield size={60} className="text-orange-600 md:w-[100px] md:h-[100px]" />
-                <h3 className="text-5xl md:text-9xl font-black uppercase italic tracking-tighter">Zero-Trust<br />Fortress</h3>
-                <p className="text-lg md:text-2xl font-bold leading-relaxed max-w-2xl">
+          {/* Panel 3: Zero-Trust Fortress (Light Theme) */}
+          <div className="h-panel w-screen h-full bg-white text-black border-r border-white/5 flex flex-col md:grid md:grid-cols-2 relative">
+             {/* Content Side */}
+             <div className="p-8 md:p-24 flex flex-col justify-center relative z-10 h-1/2 md:h-full order-2 md:order-1">
+                <div className="mb-8">
+                   <Shield size={48} className="text-orange-600 mb-6" />
+                   <h3 className="text-4xl md:text-8xl font-black uppercase italic tracking-tighter leading-[0.9]">Zero-Trust<br />Fortress</h3>
+                </div>
+                <p className="text-sm md:text-xl font-bold leading-relaxed max-w-xl">
                   Military-grade encryption for data at rest and in transit. Automated penetration testing is built into our CI/CD pipelines.
                 </p>
              </div>
+             {/* Image Side */}
+             <div className="relative h-1/2 md:h-full w-full order-1 md:order-2 overflow-hidden border-b md:border-b-0 md:border-l border-gray-100">
+                <img 
+                  src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop" 
+                  alt="Secure Architecture" 
+                  className="w-full h-full object-cover opacity-80" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-white via-transparent to-transparent" />
+             </div>
           </div>
 
-          {/* Panel 4 */}
-          <div className="h-panel w-screen h-full bg-orange-600 text-black flex flex-col justify-center px-6 md:px-40 relative">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
-                <h3 className="text-[20vw] md:text-[12vw] font-black uppercase leading-[0.8] italic tracking-tighter">Peak<br />Apex</h3>
-                <div className="space-y-6 md:space-y-10">
-                   <p className="text-3xl md:text-4xl font-black uppercase leading-tight">Handover complete. <br /> Systems operational.</p>
-                   <p className="text-base md:text-lg font-bold opacity-70 leading-relaxed uppercase">
+          {/* Panel 4: Peak Apex (Orange Theme) */}
+          <div className="h-panel w-screen h-full bg-orange-600 text-black flex flex-col md:grid md:grid-cols-2 relative">
+             {/* Image Side */}
+             <div className="relative h-1/2 md:h-full w-full overflow-hidden border-b md:border-b-0 md:border-r border-black/10">
+                <div className="absolute inset-0 bg-orange-600/20 mix-blend-multiply z-10" />
+                <img 
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2670&auto=format&fit=crop" 
+                  alt="Future City" 
+                  className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-orange-600 via-transparent to-transparent" />
+             </div>
+             {/* Content Side */}
+             <div className="p-8 md:p-24 flex flex-col justify-center relative z-10 h-1/2 md:h-full">
+                <h3 className="text-4xl md:text-8xl font-black uppercase leading-[0.9] italic tracking-tighter mb-8">Peak<br />Apex</h3>
+                <div className="space-y-6">
+                   <p className="text-2xl md:text-3xl font-black uppercase leading-tight">Handover complete. <br /> Systems operational.</p>
+                   <p className="text-sm md:text-base font-bold opacity-80 leading-relaxed uppercase max-w-md">
                      We don't deliver projects; we deliver finished technical realities. Your new infrastructure is ready for the next decade.
                    </p>
                    <div className="h-2 w-full bg-black/20" />
