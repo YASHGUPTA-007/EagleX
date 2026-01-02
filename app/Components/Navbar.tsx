@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { 
-  Zap, 
+import {
+  Zap,
   Aperture,
   Briefcase,
   User,
@@ -12,25 +12,25 @@ import {
 
 // --- Configuration ---
 const NAV_ITEMS = [
-  { label: "Our Work", icon: Briefcase },
-  { label: "About", icon: User },
-  { label: "Contact", icon: Mail },
+  { label: "Our Work", icon: Briefcase, href: "/work" },
+  { label: "About", icon: User, href: "#" },
+  { label: "Contact", icon: Mail, href: "#" },
 ];
 
 // --- Utility Components ---
 
-const TechLink = ({ children, isActive = false }: { children: React.ReactNode, isActive?: boolean }) => {
+const TechLink = ({ children, href, isActive = false }: { children: React.ReactNode, href: string, isActive?: boolean }) => {
   return (
     <motion.a
-      href="#"
+      href={href}
       className="relative px-6 py-2 group overflow-hidden cursor-pointer flex items-center gap-2"
       whileHover="hover"
     >
       {/* Hover Background Sweep */}
-      <motion.div 
-        className="absolute inset-0 bg-orange-600/10 skew-x-12 translate-x-[-150%] group-hover:translate-x-0 transition-transform duration-300" 
+      <motion.div
+        className="absolute inset-0 bg-orange-600/10 skew-x-12 translate-x-[-150%] group-hover:translate-x-0 transition-transform duration-300"
       />
-      
+
       {/* Corner Brackets */}
       <span className="absolute top-0 left-0 w-2 h-2 border-l border-t border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <span className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -52,8 +52,8 @@ const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boo
 
   const itemVariants: Variants = {
     closed: { x: -50, opacity: 0 },
-    open: { 
-      x: 0, 
+    open: {
+      x: 0,
       opacity: 1
     }
   };
@@ -75,8 +75,8 @@ const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boo
           {/* Menu Items */}
           <div className="z-10 flex flex-col gap-8">
             {NAV_ITEMS.map((item, i) => (
-              <motion.div 
-                key={item.label} 
+              <motion.div
+                key={item.label}
                 custom={i}
                 variants={itemVariants}
                 transition={{ delay: i * 0.1, type: "spring", stiffness: 300, damping: 24 }}
@@ -95,7 +95,7 @@ const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boo
           </div>
 
           {/* Bottom HUD Data */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -124,23 +124,23 @@ export default function JarvisNavbar() {
   return (
     <>
       <nav className="fixed top-0 left-0 w-full z-50 pointer-events-none">
-        
+
         {/* Top Decorative Line (Scanner) */}
-        <motion.div 
+        <motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.5, ease: "circOut" }}
-          className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-orange-600/50 to-transparent" 
+          className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-orange-600/50 to-transparent"
         />
 
         <div className="relative px-4 md:px-8 py-4 flex justify-between items-start">
-          
+
           {/* 1. Left: Brand */}
           <div className="flex flex-col gap-2 pointer-events-auto">
             <div className="flex items-center gap-4">
-              
+
               {/* Animated Arc Reactor Logo */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 className="relative w-12 h-12 flex items-center justify-center cursor-pointer group"
@@ -149,7 +149,7 @@ export default function JarvisNavbar() {
                 <div className="absolute inset-0 border border-orange-500/30 rounded-full animate-[spin_4s_linear_infinite]" />
                 <div className="absolute inset-1 border border-orange-500/20 rounded-full animate-[spin_3s_linear_infinite_reverse]" />
                 <div className="absolute inset-0 bg-orange-600/10 rounded-full blur-md group-hover:bg-orange-600/20 transition-all" />
-                
+
                 {/* Core Icon */}
                 <Aperture className="text-orange-500 relative z-10" size={24} />
               </motion.div>
@@ -166,10 +166,10 @@ export default function JarvisNavbar() {
           {/* 2. Center: Desktop Navigation (Glass Panel) */}
           <div className="hidden lg:flex items-center pointer-events-auto">
             <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-none clip-path-polygon flex gap-8 shadow-[0_0_20px_-10px_rgba(234,88,12,0.5)]"
-                 style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}>
+              style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}>
               {NAV_ITEMS.map((item) => (
-                <TechLink key={item.label}>
-                   {item.label}
+                <TechLink key={item.label} href={item.href}>
+                  {item.label}
                 </TechLink>
               ))}
             </div>
@@ -177,9 +177,9 @@ export default function JarvisNavbar() {
 
           {/* 3. Right: Action & Mobile Toggle */}
           <div className="flex items-start gap-4 pointer-events-auto">
-            
+
             {/* "Initialize" Button */}
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="hidden md:flex relative group px-6 py-3 bg-orange-600 overflow-hidden items-center gap-2"
@@ -193,23 +193,23 @@ export default function JarvisNavbar() {
             </motion.button>
 
             {/* Mobile Menu Toggle (Mechanical Switch Look) */}
-            <button 
+            <button
               onClick={() => setIsOpen(!isOpen)}
               className="relative z-50 w-12 h-12 bg-black border border-white/10 flex items-center justify-center hover:border-orange-500/50 transition-colors"
             >
               <div className="relative w-6 h-6 flex flex-col justify-between items-end overflow-hidden">
-                 <motion.span 
-                   animate={isOpen ? { rotate: 45, y: 11 } : { rotate: 0, y: 0 }}
-                   className="w-full h-0.5 bg-white origin-center"
-                 />
-                 <motion.span 
-                   animate={isOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
-                   className="w-2/3 h-0.5 bg-orange-500"
-                 />
-                 <motion.span 
-                   animate={isOpen ? { rotate: -45, y: -11, width: "100%" } : { rotate: 0, y: 0, width: "50%" }}
-                   className="h-0.5 bg-white origin-center"
-                 />
+                <motion.span
+                  animate={isOpen ? { rotate: 45, y: 11 } : { rotate: 0, y: 0 }}
+                  className="w-full h-0.5 bg-white origin-center"
+                />
+                <motion.span
+                  animate={isOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
+                  className="w-2/3 h-0.5 bg-orange-500"
+                />
+                <motion.span
+                  animate={isOpen ? { rotate: -45, y: -11, width: "100%" } : { rotate: 0, y: 0, width: "50%" }}
+                  className="h-0.5 bg-white origin-center"
+                />
               </div>
             </button>
           </div>
@@ -218,7 +218,7 @@ export default function JarvisNavbar() {
         {/* Decorative corner pieces for HUD feel */}
         <div className="fixed top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-orange-600/20 pointer-events-none hidden md:block" />
         <div className="fixed top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-orange-600/20 pointer-events-none hidden md:block" />
-        
+
       </nav>
 
       {/* Mobile Menu Overlay */}
