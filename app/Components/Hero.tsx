@@ -11,6 +11,17 @@ import {
 } from "framer-motion";
 import { ArrowUpRight, Terminal, Cpu, Zap, Activity } from "lucide-react";
 
+// --- PROJECT DATA FOR MARQUEE ---
+const projects = [
+  "/projects/SkylineChill.png",
+  "/projects/Goodwin Batteries.png",
+  "/projects/Vyapar App.png",
+  "/projects/HROne Cloud.png",
+  "/projects/First500days.png",
+  "/projects/CyreneAI.png",
+  "/projects/Saurce.png"
+];
+
 // --- 1. Scramble Text Effect Component ---
 const ScrambleText = ({ text, className }: { text: string, className?: string }) => {
   const [display, setDisplay] = useState(text);
@@ -52,6 +63,26 @@ const FloatingCard = ({ children, x, y, rotate, delay }: any) => (
       {children}
     </div>
   </motion.div>
+);
+
+// --- 3. BACKGROUND MARQUEE COMPONENT ---
+const MarqueeRow = ({ duration, reverse }: { duration: number, reverse?: boolean }) => (
+  <div className="flex overflow-hidden w-full">
+    <motion.div
+      initial={{ x: reverse ? "-50%" : "0%" }}
+      animate={{ x: reverse ? "0%" : "-50%" }}
+      transition={{ duration, ease: "linear", repeat: Infinity }}
+      className="flex gap-8 px-4 min-w-max"
+    >
+      {[...projects, ...projects, ...projects].map((src, i) => (
+        <div key={i} className="w-[300px] h-[180px] rounded-lg overflow-hidden border border-white/10 bg-white/5 relative">
+           {/* Fallback gray box if image fails, or the image itself */}
+           <img src={src} alt="project" className="w-full h-full object-cover opacity-50" />
+           <div className="absolute inset-0 bg-black/40" />
+        </div>
+      ))}
+    </motion.div>
+  </div>
 );
 
 export default function HeroHighVoltage() {
@@ -97,32 +128,40 @@ export default function HeroHighVoltage() {
       className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center perspective-1000"
       style={{ perspective: "1000px" }}
     >
-      {/* --- FIXED: Eagle Background Layer --- */}
+      {/* --- PARALLAX CONTAINER --- */}
       <motion.div 
-        style={{ x: bgX, y: bgY, scale: 1.2 }} 
+        style={{ x: bgX, y: bgY, scale: 1.1 }} 
         className="absolute inset-0 z-0 pointer-events-none select-none flex items-center justify-center"
       >
+        {/* 1. NEW MARQUEE LAYER (Behind Eagle) */}
+        {/* opacity-20 makes it dim. -rotate-6 gives it that dynamic angle */}
+        <div className="absolute inset-0 z-0 flex flex-col justify-center gap-6 opacity-90 grayscale -rotate-6 scale-125">
+             <MarqueeRow duration={40} />
+             <MarqueeRow duration={50} reverse />
+             <MarqueeRow duration={60} />
+             {/* Vignette to fade edges */}
+             <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_30%,#000_100%)]" />
+        </div>
+
+        {/* 2. EAGLE IMAGE (z-10 ensures it is IN FRONT of marquee) */}
         <motion.img 
             initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             src="/Eaglex2.png" 
             alt="Eagle X Robo Logo"
-            // --- FIX 1: CENTERED IMAGE ---
-            // 'object-center': Ensures the eagle is in the middle of the screen.
-            // 'scale-125 md:scale-100': Makes it slightly larger on mobile so it fills the background nicely.
-            className="absolute inset-0 w-full h-full object-contain object-center scale-100 md:scale-90 -translate-y-35 md:translate-y-0"
+            className="relative z-10 w-full h-full object-contain object-center scale-100 md:scale-90"
         />
         
-        <div className="absolute inset-0 bg-orange-900/20 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#000_100%)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        {/* 3. OVERLAYS (Blending) */}
+        <div className="absolute inset-0 z-20 bg-orange-900/10 mix-blend-overlay" />
+        <div className="absolute inset-0 z-20 bg-[radial-gradient(circle_at_center,transparent_20%,#000_100%)]" />
+        <div className="absolute bottom-0 left-0 right-0 h-2/3 z-20 bg-gradient-to-t from-black via-black/50 to-transparent" />
       </motion.div>
 
-      {/* --- Dynamic Background Grid --- */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
+      {/* --- Dynamic Background Grid Lines (Behind everything else) --- */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-10" />
-        
         <motion.div 
           animate={{ backgroundPosition: ["0px 0px", "0px 100px"] }}
           transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
@@ -133,10 +172,6 @@ export default function HeroHighVoltage() {
       {/* --- 3D Content Container --- */}
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        // --- FIX 2: CENTERED CONTENT ---
-        // Removed 'mt-[45vh]'. 
-        // 'mt-0' allows flexbox to center this container perfectly over the image.
-        // 'md:mt-[-5vh]' keeps the slight adjustment for desktop.
         className="relative z-30 w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center mt-0 md:mt-[-5vh]"
       >
         
