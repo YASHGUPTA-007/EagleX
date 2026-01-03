@@ -19,11 +19,15 @@ export default function CustomCursor() {
 
         const handleMouseEnter = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            
+            // Ensure target has closest method
+            if (!target.closest) return;
 
             // Check if hovering over project card
             if (target.closest(".project-card")) {
                 setIsHovering(true);
                 setCursorText("VIEW PROJECT");
+                return;
             }
 
             // Check if hovering over clickable elements
@@ -35,6 +39,10 @@ export default function CustomCursor() {
 
         const handleMouseLeave = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            
+            // Ensure target has closest method
+            if (!target.closest) return;
+            
             if (target.closest(".project-card, a, button")) {
                 setIsHovering(false);
                 setCursorText("");

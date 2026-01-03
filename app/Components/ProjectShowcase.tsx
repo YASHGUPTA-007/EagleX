@@ -85,8 +85,8 @@ const projects = [
   {
     id: 7,
     title: "Saurce",
-    description: "African manufacturing sourcing platform connecting buyers with personally verified manufacturers across Sub-Saharan Africa. Transparent pricing, capacity, and direct contacts.",
-    techStack: ["Next.js", "B2B Platform", "Marketplace", "API"],
+    description: "African manufacturing sourcing platform.",
+    techStack: ["Next.js", "B2B"],
     liveLink: "https://saurce.fr",
     image: "/projects/Saurce.png",
     category: "B2B Marketplace"
@@ -129,7 +129,7 @@ const useScrambleText = (text: string, speed: number = 40) => {
 
 // --- COMPONENTS ---
 
-// 1. The 3D Marquee Row (Optimized for smoothness)
+// 1. The 3D Marquee Row
 const MarqueeRow = ({ reverse = false, duration = 50 }) => {
   return (
     <div className="flex overflow-hidden w-full relative group pointer-events-none">
@@ -137,9 +137,9 @@ const MarqueeRow = ({ reverse = false, duration = 50 }) => {
         initial={{ x: reverse ? "-50%" : "0%" }}
         animate={{ x: reverse ? "0%" : "-50%" }}
         transition={{ duration, ease: "linear", repeat: Infinity }}
-        className="flex gap-6 px-4 w-max will-change-transform" // Hardware acceleration
+        className="flex gap-6 px-4 w-max will-change-transform" 
       >
-        {/* Quadruple data to ensure gapless loop on large 4k screens */}
+        {/* Quadruple data to ensure gapless loop */}
         {[...projects, ...projects, ...projects, ...projects].map((project, i) => (
           <div 
             key={i} 
@@ -150,10 +150,7 @@ const MarqueeRow = ({ reverse = false, duration = 50 }) => {
               alt={project.title}
               className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500"
             />
-            {/* Subtle overlay so text pops, but image is still very visible */}
             <div className="absolute inset-0 bg-black/20" />
-            
-            {/* Minimal Label */}
             <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10">
               <span className="text-[10px] font-bold text-white uppercase tracking-wider">{project.title}</span>
             </div>
@@ -193,22 +190,18 @@ const ProjectCursor = ({ active }: { active: boolean }) => {
   );
 };
 
-// 3. THE MASTERPIECE HERO (Updated Headlines + Visibility)
+// 3. THE MASTERPIECE HERO 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Scramble Texts - NEW HEADLINES
-  const title1 = useScrambleText("OUR", 50);
-  const title2 = useScrambleText("PORTFOLIO", 50);
+  const title1 = useScrambleText("FORGING", 50);
+  const title2 = useScrambleText("LEGACIES", 50);
 
-  // Mouse Interaction
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
   const xDisplay = useTransform(mouseX, (value) => value.toFixed(3));
   const yDisplay = useTransform(mouseY, (value) => value.toFixed(3));
   
-  // Reduced parallax range to prevent "jitters" from aggressive movement
   const marqueeX = useTransform(mouseX, [0, 1], [-15, 15]);
   const marqueeY = useTransform(mouseY, [0, 1], [-15, 15]);
   
@@ -228,41 +221,23 @@ const Hero = () => {
       className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden bg-[#020202] perspective-1000"
       style={{ perspective: "1000px" }}
     >
-      {/* 1. LAYER: GRAIN */}
       <div className="absolute inset-0 z-30 pointer-events-none opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
 
-      {/* 2. LAYER: 3D MARQUEE BACKGROUND */}
       <motion.div 
-        style={{ 
-          x: marqueeX, 
-          y: marqueeY, 
-          rotateX: 10, // Reduced tilt for better visibility
-          rotateZ: -5,
-          scale: 1.1,
-          willChange: "transform" // Critical for preventing jitters
-        }}
+        style={{ x: marqueeX, y: marqueeY, rotateX: 10, rotateZ: -5, scale: 1.1, willChange: "transform" }}
         className="absolute inset-0 z-0 flex flex-col justify-center gap-6 opacity-60 hover:opacity-90 transition-opacity duration-700"
       >
         <MarqueeRow duration={60} />
         <MarqueeRow reverse duration={70} />
         <MarqueeRow duration={80} />
-        
-        {/* Soft Vignette (Lighter than before to keep images visible) */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#020202_95%)]" />
       </motion.div>
 
-      {/* 3. LAYER: HUD ELEMENTS (Cleaned Branding) */}
       <div className="absolute inset-0 z-20 pointer-events-none p-6 md:p-12 hidden md:block">
-        {/* Top Left */}
         <div className="absolute top-12 left-12 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs font-mono text-orange-500/80">
-                <Globe size={14} className="animate-spin-slow" />
-                <span>NEXUS.ONLINE</span>
-            </div>
+        
             <div className="h-px w-24 bg-orange-500/30" />
         </div>
-        
-        {/* Top Right */}
         <div className="absolute top-12 right-12 text-right">
              <div className="text-[10px] font-mono text-gray-500 mb-1">GRID POS</div>
              <div className="text-xs font-mono text-orange-500 flex flex-col items-end gap-1">
@@ -270,8 +245,6 @@ const Hero = () => {
                 <div className="flex gap-2">Y: <motion.span>{yDisplay}</motion.span></div>
              </div>
         </div>
-
-        {/* Bottom Left */}
         <div className="absolute bottom-12 left-12">
             <div className="flex items-center gap-2 mb-2">
                 <Cpu size={14} className="text-gray-600" />
@@ -279,84 +252,42 @@ const Hero = () => {
             </div>
             <div className="flex gap-1">
                 {[1,2,3,4].map(i => (
-                    <motion.div 
-                        key={i}
-                        animate={{ height: [10, 20, 10] }}
-                        transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-1 bg-orange-600/40" 
-                    />
+                    <motion.div key={i} animate={{ height: [10, 20, 10] }} transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }} className="w-1 bg-orange-600/40" />
                 ))}
             </div>
         </div>
       </div>
 
-      {/* 4. MAIN CONTENT */}
-      <motion.div 
-        style={{ rotateX: contentRotateX, rotateY: contentRotateY, transformStyle: "preserve-3d" }}
-        className="relative z-20 flex flex-col items-center text-center max-w-7xl px-6"
-      >
-        {/* Top Badge */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border border-orange-500/30 bg-black/60 backdrop-blur-md shadow-[0_0_20px_rgba(249,115,22,0.2)]"
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-[10px] font-mono text-orange-400 uppercase tracking-[0.2em]">
-            Portfolio Archive
-          </span>
-        </motion.div>
+      <motion.div style={{ rotateX: contentRotateX, rotateY: contentRotateY, transformStyle: "preserve-3d" }} className="relative z-20 flex flex-col items-center text-center max-w-7xl px-6">
+       
 
-        {/* Hero Text */}
         <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-white leading-[0.85] mb-10 select-none drop-shadow-2xl">
           <div className="relative block overflow-hidden">
-             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-400">
-                {title1}
-             </span>
+             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-400">{title1}</span>
           </div>
-          
           <div className="relative block mt-2">
-             {/* CHANGED TO SOLID ORANGE */}
-             <span 
-               className="block text-[#FF4D00]"
-             >
-                {title2}
-             </span>
-             {/* Glow Effect */}
-             <span className="absolute inset-0 text-[#FF4D00]/20 blur-[20px] pointer-events-none">
-                 {title2}
-             </span>
+             <span className="block text-[#FF4D00]">{title2}</span>
+             <span className="absolute inset-0 text-[#FF4D00]/20 blur-[20px] pointer-events-none">{title2}</span>
           </div>
         </h1>
 
-        {/* Description - Added bg to ensure readability over marquee */}
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="text-gray-300 text-sm md:text-lg max-w-lg leading-relaxed font-light tracking-wide mb-12 bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/5"
-        >
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }} className="text-gray-300 text-sm md:text-lg max-w-lg leading-relaxed font-light tracking-wide mb-12 bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/5">
           <span className="text-orange-500 font-mono text-xs mr-2">[MISSION]</span>
           We fuse code and creativity to build digital ecosystems that feel alive. 
           Performance, aesthetics, and scalability in perfect harmony.
         </motion.p>
 
-        {/* Primary CTA */}
-        <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="group relative px-8 py-4 bg-white text-black font-bold uppercase text-xs tracking-widest overflow-hidden hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow"
-        >
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="group relative px-8 py-4 bg-white text-black font-bold uppercase text-xs tracking-widest overflow-hidden hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow">
             <div className="absolute inset-0 bg-orange-500 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-            <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
-                Explore Work <Zap size={14} />
-            </span>
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">Explore Work <Zap size={14} /></span>
         </motion.button>
       </motion.div>
     </section>
   );
 };
+
+// 4. Main Projects Component
+// ... imports stay the same
 
 // 4. Main Projects Component
 export default function ProjectsShowcase() {
@@ -395,7 +326,6 @@ export default function ProjectsShowcase() {
     >
       <ProjectCursor active={activeProject !== null} />
 
-      {/* NEW 3D MARQUEE HERO */}
       <Hero />
 
       {/* Projects Grid */}
@@ -409,54 +339,67 @@ export default function ProjectsShowcase() {
           >
             <div className="h-full w-full grid grid-cols-1 lg:grid-cols-12 gap-0">
               
-              {/* Left Side - Image */}
-              <div className={`lg:col-span-7 relative overflow-hidden h-[40vh] lg:h-full ${
+              {/* --- LEFT SIDE (LAPTOP CARD) --- */}
+              <div className={`lg:col-span-7 relative h-[50vh] lg:h-full flex items-center justify-center bg-[#050505] overflow-hidden ${
                 index % 2 === 0 ? 'order-1' : 'order-1 lg:order-2'
               }`}>
+                {/* Background Grid */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30" />
+                
+                {/* The Floating Laptop Card */}
                 <a
                   href={project.liveLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="project-card relative h-full w-full group cursor-pointer block"
+                  // 1. CHANGED: aspect-[16/10] -> aspect-video (Matches standard screens)
+                  className="relative w-[90%] md:w-[75%] aspect-video group cursor-pointer z-10"
                 >
-                  {/* Live Indicator */}
-                  <div className="absolute top-6 left-6 z-30 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] font-mono text-green-500 uppercase tracking-wider">Live</span>
-                  </div>
-
-                  <motion.img
-                    initial={{ scale: 1.1, filter: "grayscale(100%)" }}
-                    whileInView={{ scale: 1, filter: "grayscale(0%)" }}
-                    transition={{ duration: 1.2 }}
-                    src={project.image}
-                    alt={project.title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                  />
-                  
-                  <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-orange-600/20" />
-                  
-                  {/* Overlay Info on Image Hover */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/40 backdrop-blur-sm">
-                    <div className="text-center">
-                      <ExternalLink className="text-white mx-auto mb-4" size={48} />
-                      <p className="text-white font-bold uppercase tracking-widest text-sm">Click to View</p>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="w-full h-full rounded-lg overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl relative"
+                  >
+                    {/* 2. CHANGED: Scroll Effect Wrapper */}
+                    {/* This div masks the scrolling image */}
+                    <div className="w-full h-full overflow-hidden relative">
+                        <motion.img
+                          src={project.image}
+                          alt={project.title}
+                          // 3. SCROLL LOGIC: On hover, scroll image up to show the footer
+                          whileHover={{ y: "-20%" }} 
+                          transition={{ duration: 3, ease: "linear" }}
+                          // 4. FIXED: object-cover + object-top ensures no grey bars and top is always seen
+                          className="w-full h-auto min-h-full object-cover object-top opacity-90 group-hover:opacity-100"
+                        />
                     </div>
-                  </div>
+                    
+                    {/* Glass Reflection */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none z-20" />
+                    
+                    {/* Hover Button Overlay */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
+                       <div className="flex items-center gap-2 px-6 py-3 bg-[#FF4D00] text-white font-bold uppercase tracking-wider text-xs rounded-sm shadow-lg">
+                          Visit Site <ExternalLink size={16} />
+                       </div>
+                    </div>
+                  </motion.div>
 
-                  {/* Corners */}
-                  <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-orange-600 z-20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-orange-600 z-20 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                  {/* Project Number Badge */}
-                  <div className="absolute top-8 right-8 lg:left-8 lg:right-auto text-6xl lg:text-[12rem] font-black text-white/5 leading-none select-none pointer-events-none">
-                    {String(index + 1).padStart(2, '0')}
-                  </div>
+                  {/* Underglow */}
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[90%] h-20 bg-[#FF4D00]/20 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </a>
+
+                {/* Cyberpunk Corners */}
+                <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-[#FF4D00]/30" />
+                <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-[#FF4D00]/30" />
+                
+                {/* Number */}
+                <div className="absolute top-4 left-4 text-[8rem] md:text-[12rem] font-black text-white/[0.03] leading-none select-none pointer-events-none font-mono">
+                    {String(index + 1).padStart(2, '0')}
+                </div>
               </div>
 
-              {/* Right Side - Content */}
-              <div className={`lg:col-span-5 bg-[#0a0a0a] border-t lg:border-t-0 lg:border-l border-white/5 p-8 md:p-16 flex flex-col justify-center h-[60vh] lg:h-full ${
+              {/* Right Side - Content (Unchanged) */}
+              <div className={`lg:col-span-5 bg-[#0a0a0a] border-t lg:border-t-0 lg:border-l border-white/5 p-8 md:p-16 flex flex-col justify-center h-[50vh] lg:h-full ${
                 index % 2 === 0 ? 'order-2' : 'order-2 lg:order-1'
               }`}>
                 <motion.div
@@ -464,28 +407,24 @@ export default function ProjectsShowcase() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                  {/* Category */}
                   <div className="flex items-center gap-3 mb-6">
-                    <Layers className="text-orange-600" size={20} />
-                    <span className="text-orange-600 font-mono text-xs uppercase tracking-widest font-black">
+                    <Layers className="text-[#FF4D00]" size={20} />
+                    <span className="text-[#FF4D00] font-mono text-xs uppercase tracking-widest font-black">
                       {project.category}
                     </span>
                   </div>
 
-                  {/* Title */}
                   <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] text-white mb-6">
                     {project.title}
                   </h3>
 
-                  {/* Description */}
                   <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-8 max-w-lg">
                     {project.description}
                   </p>
 
-                  {/* Tech Stack */}
                   <div className="mb-8">
                     <div className="flex items-center gap-2 mb-4">
-                      <Code2 className="text-orange-600" size={18} />
+                      <Code2 className="text-[#FF4D00]" size={18} />
                       <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
                         Tech Stack
                       </span>
@@ -494,7 +433,7 @@ export default function ProjectsShowcase() {
                       {project.techStack.map((tech) => (
                         <span
                           key={tech}
-                          className="px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-mono text-gray-300 hover:bg-orange-600/20 hover:border-orange-600/30 transition-colors"
+                          className="px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-mono text-gray-300 hover:bg-[#FF4D00]/20 hover:border-[#FF4D00]/30 transition-colors"
                         >
                           {tech}
                         </span>
@@ -502,12 +441,11 @@ export default function ProjectsShowcase() {
                     </div>
                   </div>
 
-                  {/* CTA Button */}
                   <a
                     href={project.liveLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-3 px-6 py-3 bg-orange-600 text-black font-black uppercase tracking-wider text-sm hover:bg-white transition-colors"
+                    className="group inline-flex items-center gap-3 px-6 py-3 bg-[#FF4D00] text-black font-black uppercase tracking-wider text-sm hover:bg-white transition-colors"
                   >
                     <span>View Live Project</span>
                     <ExternalLink 
@@ -523,8 +461,8 @@ export default function ProjectsShowcase() {
         ))}
       </div>
 
-      {/* Stats Footer */}
-      <section className="py-20 md:py-32 bg-orange-600 text-black overflow-hidden relative border-t border-white/10">
+      {/* Stats Footer (Same as before) */}
+      <section className="py-20 md:py-32 bg-[#FF4D00] text-black overflow-hidden relative border-t border-white/10">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         </div>

@@ -2,48 +2,45 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Zap,
   Briefcase,
   User,
-  Mail
+  Mail,
+  Home
 } from "lucide-react";
-
-// --- Configuration ---
-const NAV_ITEMS = [
-  { label: "Our Work", icon: Briefcase, href: "/work" },
-  { label: "About", icon: User, href: "#" },
-  { label: "Contact", icon: Mail, href: "#" },
-];
 
 // --- Utility Components ---
 
 const TechLink = ({ children, href, isActive = false }: { children: React.ReactNode, href: string, isActive?: boolean }) => {
   return (
-    <motion.a
-      href={href}
-      className="relative px-6 py-2 group overflow-hidden cursor-pointer flex items-center gap-2"
-      whileHover="hover"
-    >
-      {/* Hover Background Sweep */}
+    <Link href={href}>
       <motion.div
-        className="absolute inset-0 bg-orange-600/10 skew-x-12 translate-x-[-150%] group-hover:translate-x-0 transition-transform duration-300"
-      />
+        className="relative px-6 py-2 group overflow-hidden cursor-pointer flex items-center gap-2"
+        whileHover="hover"
+      >
+        {/* Hover Background Sweep */}
+        <motion.div
+          className="absolute inset-0 bg-orange-600/10 skew-x-12 translate-x-[-150%] group-hover:translate-x-0 transition-transform duration-300"
+        />
 
-      {/* Corner Brackets */}
-      <span className="absolute top-0 left-0 w-2 h-2 border-l border-t border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <span className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Corner Brackets */}
+        <span className="absolute top-0 left-0 w-2 h-2 border-l border-t border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <span className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {/* Text */}
-      <span className={`font-mono text-sm uppercase tracking-widest ${isActive ? "text-orange-500" : "text-gray-400 group-hover:text-white"} transition-colors relative z-10`}>
-        {children}
-      </span>
-    </motion.a>
+        {/* Text */}
+        <span className={`font-mono text-sm uppercase tracking-widest ${isActive ? "text-orange-500" : "text-gray-400 group-hover:text-white"} transition-colors relative z-10`}>
+          {children}
+        </span>
+      </motion.div>
+    </Link>
   );
 };
 
 // --- Mobile Menu Component ---
-const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boolean) => void }) => {
+const MobileMenu = ({ isOpen, setIsOpen, navItems }: { isOpen: boolean, setIsOpen: (v: boolean) => void, navItems: any[] }) => {
   const menuVariants: Variants = {
     closed: { opacity: 0, scale: 0.95, filter: "blur(20px)", pointerEvents: "none" as const },
     open: { opacity: 1, scale: 1, filter: "blur(0px)", pointerEvents: "auto" as const }
@@ -73,23 +70,23 @@ const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boo
 
           {/* Menu Items */}
           <div className="z-10 flex flex-col gap-8">
-            {NAV_ITEMS.map((item, i) => (
-              <motion.div
-                key={item.label}
-                custom={i}
-                variants={itemVariants}
-                transition={{ delay: i * 0.1, type: "spring", stiffness: 300, damping: 24 }}
-                className="group flex items-center gap-4 cursor-pointer border-b border-white/10 pb-4"
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-2 h-2 bg-orange-600 rotate-45 group-hover:scale-150 transition-transform" />
-                <span className="text-4xl md:text-6xl font-black uppercase text-transparent bg-clip-text bg-linear-to-r from-gray-400 to-gray-600 group-hover:from-orange-400 group-hover:to-orange-600 transition-all duration-300">
-                  {item.label}
-                </span>
-                <span className="ml-auto text-xs font-mono text-orange-500 opacity-0 group-hover:opacity-100">
-                  // LINK_ESTABLISHED
-                </span>
-              </motion.div>
+            {navItems.map((item, i) => (
+              <Link key={item.label} href={item.href} onClick={() => setIsOpen(false)}>
+                <motion.div
+                  custom={i}
+                  variants={itemVariants}
+                  transition={{ delay: i * 0.1, type: "spring", stiffness: 300, damping: 24 }}
+                  className="group flex items-center gap-4 cursor-pointer border-b border-white/10 pb-4"
+                >
+                  <div className="w-2 h-2 bg-orange-600 rotate-45 group-hover:scale-150 transition-transform" />
+                  <span className="text-4xl md:text-6xl font-black uppercase text-transparent bg-clip-text bg-linear-to-r from-gray-400 to-gray-600 group-hover:from-orange-400 group-hover:to-orange-600 transition-all duration-300">
+                    {item.label}
+                  </span>
+                  <span className="ml-auto text-xs font-mono text-orange-500 opacity-0 group-hover:opacity-100">
+                    // LINK_ESTABLISHED
+                  </span>
+                </motion.div>
+              </Link>
             ))}
           </div>
 
@@ -119,6 +116,16 @@ const MobileMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boo
 
 export default function JarvisNavbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
+  // Dynamic Navigation Items
+  const navItems = [
+    ...(!isHomePage ? [{ label: "Home", icon: Home, href: "/" }] : []),
+    { label: "Our Work", icon: Briefcase, href: "/work" },
+    { label: "About", icon: User, href: "/about" },
+    { label: "Contact", icon: Mail, href: "/contact" },
+  ];
 
   return (
     <>
@@ -132,38 +139,43 @@ export default function JarvisNavbar() {
           className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-orange-600/50 to-transparent"
         />
 
-        <div className="relative px-4 md:px-8 py-4 flex justify-between items-start">
+        {/* LAYOUT FIX: Used GRID instead of FLEX for desktop.
+            grid-cols-[1fr_auto_1fr] ensures the center column (auto) stays perfectly centered 
+            because the left (1fr) and right (1fr) columns take up equal remaining space.
+        */}
+        <div className="relative px-4 md:px-8 py-4 flex lg:grid lg:grid-cols-[1fr_auto_1fr] justify-between items-center">
 
-          {/* 1. Left: Brand Logo (Updated) */}
-          <div className="flex flex-col gap-2 pointer-events-auto">
-            <motion.div
-              whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
-              whileTap={{ scale: 0.95 }}
-              className="cursor-pointer"
-            >
-              {/* Resized Logo: w-24 (mobile) / w-32 (desktop) */}
-              <img 
-                src="/Eaglex2.png" 
-                alt="Eagle X Logo" 
-                className="w-20 md:w-24 h-auto object-contain"
-              />
-            </motion.div>
+          {/* 1. Left: Brand Logo (Aligned Start) */}
+          <div className="flex justify-start pointer-events-auto">
+            <Link href="/">
+              <motion.div
+                whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
+                whileTap={{ scale: 0.95 }}
+                className="cursor-pointer"
+              >
+                <img 
+                  src="/Eaglex2.png" 
+                  alt="Eagle X Logo" 
+                  className="w-24 md:w-32 h-auto object-contain"
+                />
+              </motion.div>
+            </Link>
           </div>
 
-          {/* 2. Center: Desktop Navigation (Glass Panel) */}
-          <div className="hidden lg:flex items-center pointer-events-auto">
+          {/* 2. Center: Desktop Navigation (Aligned Center) */}
+          <div className="hidden lg:flex justify-center items-center pointer-events-auto">
             <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-none clip-path-polygon flex gap-8 shadow-[0_0_20px_-10px_rgba(234,88,12,0.5)]"
               style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}>
-              {NAV_ITEMS.map((item) => (
-                <TechLink key={item.label} href={item.href}>
+              {navItems.map((item) => (
+                <TechLink key={item.label} href={item.href} isActive={pathname === item.href}>
                   {item.label}
                 </TechLink>
               ))}
             </div>
           </div>
 
-          {/* 3. Right: Action & Mobile Toggle */}
-          <div className="flex items-start gap-4 pointer-events-auto">
+          {/* 3. Right: Action & Mobile Toggle (Aligned End) */}
+          <div className="flex justify-end items-center gap-4 pointer-events-auto">
 
             {/* "Initialize" Button */}
             <motion.button
@@ -179,7 +191,7 @@ export default function JarvisNavbar() {
               </span>
             </motion.button>
 
-            {/* Mobile Menu Toggle (Mechanical Switch Look) */}
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="relative z-50 w-12 h-12 bg-black border border-white/10 flex items-center justify-center hover:border-orange-500/50 transition-colors"
@@ -202,14 +214,14 @@ export default function JarvisNavbar() {
           </div>
         </div>
 
-        {/* Decorative corner pieces for HUD feel */}
+        {/* Decorative corner pieces */}
         <div className="fixed top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-orange-600/20 pointer-events-none hidden md:block" />
         <div className="fixed top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-orange-600/20 pointer-events-none hidden md:block" />
 
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} />
+      <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} navItems={navItems} />
     </>
   );
 }
