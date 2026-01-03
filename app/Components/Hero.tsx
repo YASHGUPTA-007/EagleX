@@ -176,7 +176,7 @@ export default function HeroHighVoltage() {
       >
         
         {/* Floating Decor Elements (Desktop Only) */}
-        <FloatingCard x={-350} y={-100} rotate={-10} delay={0.5}>
+        {/* <FloatingCard x={-350} y={-100} rotate={-10} delay={0.5}>
           <div className="flex items-center gap-3 text-orange-500 font-mono text-xs">
             <Terminal size={16} />
             <span>npm run build:prod</span>
@@ -184,15 +184,15 @@ export default function HeroHighVoltage() {
           <div className="mt-2 h-1 w-32 bg-gray-800 rounded-full overflow-hidden">
             <div className="h-full bg-orange-500 w-[70%]" />
           </div>
-        </FloatingCard>
-
-        <FloatingCard x={380} y={50} rotate={10} delay={0.7}>
+        </FloatingCard> */}
+{/* 
+        <FloatingCard x={500} y={50} rotate={10} delay={0.7}>
           <div className="flex items-center gap-3 text-green-400 font-mono text-xs">
             <Cpu size={16} />
             <span>Server Load: Optimal</span>
           </div>
           <div className="mt-2 font-bold text-xl text-white">98.4%</div>
-        </FloatingCard>
+        </FloatingCard> */}
 
         {/* --- Main Typography --- */}
         <div className="relative text-center transform-style-3d">
@@ -205,7 +205,7 @@ export default function HeroHighVoltage() {
           >
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
             <span className="text-xs font-mono text-orange-400 tracking-widest uppercase">
-              Eagle x System
+              Eagle x 
             </span>
           </motion.div>
 
