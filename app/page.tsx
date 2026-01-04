@@ -18,10 +18,7 @@ import {
   Users
 } from "lucide-react";
 
-// Import Shared Components
-import Navbar from "./Components/Navbar";
 import Hero from "./Components/Hero";
-import Footer from "./Components/Footer";
 import { GridPattern, RevealTitle } from "./Components/shared";
 
 if (typeof window !== "undefined") {
@@ -574,7 +571,6 @@ export default function EagleXMonolith() {
         </motion.div>
       </section>
 
-      <Footer />
 
       <style jsx global>{`
         @keyframes spin {
