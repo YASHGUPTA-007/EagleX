@@ -83,7 +83,7 @@ const MarqueeRow = React.memo(({ duration, reverse }: { duration: number, revers
 
 MarqueeRow.displayName = "MarqueeRow";
 
-export default function HeroHighVoltage() {
+export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   
   // --- 3D Tilt Logic (Optimized spring config) ---
