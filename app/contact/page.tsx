@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   motion, 
   useMotionTemplate, 
-  useMotionValue, 
-  useSpring, 
-  AnimatePresence 
+  useMotionValue 
 } from "framer-motion";
 import { 
   ArrowUpRight, 
@@ -19,7 +17,8 @@ import {
   CheckCircle2, 
   Terminal, 
   Globe, 
-  Wifi
+  Wifi,
+  AlertCircle
 } from "lucide-react";
 
 // --- 1. UTILITIES ---
@@ -32,7 +31,6 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
     let interval: NodeJS.Timeout;
     let iteration = 0;
     
-    // Only scramble on mount
     interval = setInterval(() => {
       setDisplay(
         text
@@ -52,7 +50,6 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
   return <span className={className}>{display}</span>;
 };
 
-// Current Time Component for HUD
 const LocalTime = () => {
   const [time, setTime] = useState("");
   useEffect(() => {
@@ -90,8 +87,7 @@ const SocialLink = ({ href, icon: Icon, label }: { href: string, icon: any, labe
   );
 };
 
-// Input Field Component
-const InputField = ({ label, type = "text", placeholder, name }: any) => {
+const InputField = ({ label, type = "text", placeholder, name, value, onChange, error }: any) => {
   return (
     <div className="group relative">
       <label className="text-[10px] font-mono text-[#FF4D00] uppercase tracking-widest mb-2 block opacity-70 group-focus-within:opacity-100 transition-opacity">
@@ -101,23 +97,29 @@ const InputField = ({ label, type = "text", placeholder, name }: any) => {
         {type === "textarea" ? (
           <textarea 
             name={name}
+            value={value}
+            onChange={onChange}
             placeholder={placeholder}
             rows={4}
-            className="w-full bg-black/50 border border-white/20 text-white p-4 font-sans text-sm focus:outline-none focus:border-[#FF4D00] focus:ring-1 focus:ring-[#FF4D00] transition-all resize-none placeholder:text-white/20"
+            className={`w-full bg-black/50 border ${error ? 'border-red-500' : 'border-white/20'} text-white p-4 font-sans text-sm focus:outline-none focus:border-[#FF4D00] focus:ring-1 focus:ring-[#FF4D00] transition-all resize-none placeholder:text-white/20`}
           />
         ) : (
           <input 
             type={type}
             name={name}
+            value={value}
+            onChange={onChange}
             placeholder={placeholder}
-            className="w-full bg-black/50 border border-white/20 text-white p-4 font-sans text-sm focus:outline-none focus:border-[#FF4D00] focus:ring-1 focus:ring-[#FF4D00] transition-all placeholder:text-white/20"
+            className={`w-full bg-black/50 border ${error ? 'border-red-500' : 'border-white/20'} text-white p-4 font-sans text-sm focus:outline-none focus:border-[#FF4D00] focus:ring-1 focus:ring-[#FF4D00] transition-all placeholder:text-white/20`}
           />
         )}
         
-        {/* Corner Accents */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-transparent group-focus-within:border-[#FF4D00] transition-all duration-300" />
         <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-transparent group-focus-within:border-[#FF4D00] transition-all duration-300" />
       </div>
+      {error && (
+        <p className="text-red-500 text-xs mt-1 font-mono">{error}</p>
+      )}
     </div>
   );
 };
@@ -125,11 +127,19 @@ const InputField = ({ label, type = "text", placeholder, name }: any) => {
 // --- 3. MAIN PAGE ---
 
 export default function ContactPage() {
-  const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [errors, setErrors] = useState<any>({});
+  const [errorMessage, setErrorMessage] = useState("");
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Spotlight Effect
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, clientY, currentTarget } = e;
     const { left, top } = currentTarget.getBoundingClientRect();
@@ -139,10 +149,67 @@ export default function ContactPage() {
 
   const background = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(255, 77, 0, 0.05), transparent 80%)`;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev: any) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: any = {};
+    
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!formData.subject.trim()) newErrors.subject = "Subject is required";
+    if (!formData.message.trim()) newErrors.message = "Message is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setFormStatus("sending");
-    setTimeout(() => setFormStatus("sent"), 2000);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setFormStatus("sent");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setFormStatus("error");
+        setErrorMessage(data.error || "Failed to submit form");
+      }
+    } catch (error) {
+      setFormStatus("error");
+      setErrorMessage("Network error. Please try again.");
+    }
+  };
+
+  const resetForm = () => {
+    setFormStatus("idle");
+    setErrorMessage("");
+    setErrors({});
   };
 
   return (
@@ -153,14 +220,11 @@ export default function ContactPage() {
       
       {/* BACKGROUND LAYERS */}
       <div className="fixed inset-0 z-0">
-        {/* Static Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        {/* Mouse Spotlight */}
         <motion.div 
           className="absolute inset-0 z-10 pointer-events-none"
           style={{ background }}
         />
-        {/* Grain */}
         <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay pointer-events-none" />
       </div>
 
@@ -190,7 +254,7 @@ export default function ContactPage() {
         {/* SPLIT GRID LAYOUT */}
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-24">
           
-          {/* LEFT COLUMN: INFO & SOCIALS */}
+          {/* LEFT COLUMN */}
           <div className="lg:col-span-5 flex flex-col justify-between h-full">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -203,7 +267,6 @@ export default function ContactPage() {
                 Fill out the transmission form to establish a direct link with our engineering team.
               </p>
 
-              {/* Contact Data Blocks */}
               <div className="grid gap-8">
                 <div className="group cursor-pointer">
                   <div className="flex items-center gap-3 text-[#FF4D00] mb-2">
@@ -226,7 +289,6 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Social Grid */}
               <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
                 <SocialLink href="#" icon={Twitter} label="Twitter" />
                 <SocialLink href="#" icon={Github} label="Github" />
@@ -235,7 +297,7 @@ export default function ContactPage() {
             </motion.div>
           </div>
 
-          {/* RIGHT COLUMN: THE FORM */}
+          {/* RIGHT COLUMN: FORM */}
           <div className="lg:col-span-7">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -243,13 +305,11 @@ export default function ContactPage() {
               transition={{ delay: 0.4 }}
               className="bg-[#050505] border border-white/10 p-8 md:p-12 relative overflow-hidden"
             >
-              {/* Decorative Corner Borders */}
               <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-[#FF4D00]" />
               <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-[#FF4D00]" />
               <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-[#FF4D00]" />
               <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-[#FF4D00]" />
 
-              {/* Form Content */}
               {formStatus === "sent" ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -262,7 +322,7 @@ export default function ContactPage() {
                   <h3 className="text-3xl font-black uppercase mb-2">Transmission Received</h3>
                   <p className="text-gray-400 font-mono text-sm">We will re-establish contact shortly.</p>
                   <button 
-                    onClick={() => setFormStatus("idle")}
+                    onClick={resetForm}
                     className="mt-8 text-[#FF4D00] text-xs font-mono uppercase hover:underline"
                   >
                     Send Another Packet
@@ -270,14 +330,51 @@ export default function ContactPage() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+                  {formStatus === "error" && (
+                    <div className="bg-red-500/10 border border-red-500 p-4 rounded flex items-center gap-3">
+                      <AlertCircle size={20} className="text-red-500" />
+                      <p className="text-red-500 text-sm">{errorMessage}</p>
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-8">
-                    <InputField label="Identity (Name)" name="name" placeholder="John Doe" />
-                    <InputField label="Frequency (Email)" name="email" type="email" placeholder="john@company.com" />
+                    <InputField 
+                      label="Identity (Name)" 
+                      name="name" 
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={handleChange}
+                      error={errors.name}
+                    />
+                    <InputField 
+                      label="Frequency (Email)" 
+                      name="email" 
+                      type="email" 
+                      placeholder="john@company.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      error={errors.email}
+                    />
                   </div>
                   
-                  <InputField label="Sector (Subject)" name="subject" placeholder="Project Inquiry / Collaboration" />
+                  <InputField 
+                    label="Sector (Subject)" 
+                    name="subject" 
+                    placeholder="Project Inquiry / Collaboration"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    error={errors.subject}
+                  />
                   
-                  <InputField label="Data Packet (Message)" name="message" type="textarea" placeholder="Tell us about your project requirements..." />
+                  <InputField 
+                    label="Data Packet (Message)" 
+                    name="message" 
+                    type="textarea" 
+                    placeholder="Tell us about your project requirements..."
+                    value={formData.message}
+                    onChange={handleChange}
+                    error={errors.message}
+                  />
 
                   <div className="pt-4 flex items-center justify-between">
                     <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-gray-500 uppercase">
@@ -304,7 +401,7 @@ export default function ContactPage() {
 
         </div>
 
-        {/* BOTTOM HUD FOOTER */}
+        {/* BOTTOM HUD */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
