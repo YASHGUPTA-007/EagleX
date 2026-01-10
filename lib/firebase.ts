@@ -1,18 +1,17 @@
-// lib/firebase.ts
 import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
+// Your web app's Firebase configuration using Environment Variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDxlDZmeEc50xKQ-WlhgxWSC8VGRCZpZrg",
-  authDomain: "eaglex-9749b.firebaseapp.com",
-  projectId: "eaglex-9749b",
-  storageBucket: "eaglex-9749b.firebasestorage.app",
-  messagingSenderId: "230059429044",
-  appId: "1:230059429044:web:e5ffb28d79e0626e58dbe1",
-  measurementId: "G-DKKBZ7B0SC"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase (only if not already initialized)
