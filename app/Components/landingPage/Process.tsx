@@ -1,71 +1,138 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowUpRight } from "lucide-react";
 
 const steps = [
-  { id: "01", title: "Discovery", desc: "1 Hour Call. We define the core features needed for launch." },
-  { id: "02", title: "Build", desc: "5 Days of intense coding. You get daily updates via Loom." },
-  { id: "03", title: "Launch", desc: "Day 7. We deploy to production. You are live." },
-  { id: "04", title: "Iterate", desc: "We support the launch and prep for V2 based on real user data." }
+  { 
+    id: "01", 
+    title: "Discovery", 
+    tag: "Analysis",
+    desc: "We dismantle your requirements and reconstruct a battle plan. 1 Hour. No fluff." 
+  },
+  { 
+    id: "02", 
+    title: "Construction", 
+    tag: "Development",
+    desc: "5 Days of deep-work sprints. You receive daily builds, not static mockups." 
+  },
+  { 
+    id: "03", 
+    title: "Deployment", 
+    tag: "Execution",
+    desc: "Production launch. We manage the CI/CD pipeline and DNS propagation." 
+  },
+  { 
+    id: "04", 
+    title: "Evolution", 
+    tag: "Optimization",
+    desc: "Post-launch analytics review to engineer the next iteration cycle." 
+  }
 ];
 
-export default function Process() {
+export default function ProcessSwissMasterpiece() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // 1. Grid Lines Draw Animation
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 75%",
+          toggleActions: "play none none reverse",
+        }
+      });
+
+      // Top Border draws left to right
+      tl.from(".border-top-draw", { scaleX: 0, duration: 1, ease: "expo.out" })
+      // Vertical borders draw down
+        .from(".border-vert-draw", { scaleY: 0, duration: 0.8, stagger: 0.1, ease: "expo.out" }, "-=0.5")
+      // Content reveals
+        .from(".step-content", { y: 20, opacity: 0, stagger: 0.1, duration: 0.5 }, "-=0.4");
+
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="py-24 md:py-60 bg-white text-black relative overflow-hidden">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-40 gap-10">
-          <motion.h2
-            initial={{ x: -100, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="text-[14vw] font-black uppercase leading-[0.7] tracking-tighter italic"
-          >
-            The<br />Process
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            className="max-w-md text-sm md:text-xl font-bold uppercase tracking-tight text-gray-400 italic border-l-4 border-black pl-8"
-          >
-            We skip the bureaucracy. A simple 4-step process designed to get you to market before your competitors.
-          </motion.p>
+    <section 
+      ref={containerRef} 
+      className="bg-white text-black py-32 border-b border-black relative overflow-hidden"
+    >
+      <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
+        
+        {/* Header - Brutalist Typesetting */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-10">
+          <h2 className="text-[12vw] lg:text-[10vw] font-black leading-[0.8] tracking-tighter uppercase">
+            The<br/>Process
+          </h2>
+          <div className="max-w-md pb-4">
+            <div className="w-12 h-1 bg-orange-600 mb-6" />
+            <p className="text-xl font-bold leading-tight uppercase tracking-tight">
+              We skip the bureaucracy. <br/>
+              A linear execution model designed for speed.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-20">
-          {steps.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.2 }}
-              className="space-y-6 md:space-y-8 group relative"
-            >
-              <motion.div
-                whileHover={{ x: 20, skewX: -10 }}
-                className="text-7xl md:text-9xl font-black text-gray-100 group-hover:text-orange-600 transition-all duration-700 cursor-default select-none"
+        {/* The Grid System */}
+        <div className="relative">
+          {/* Top Horizontal Line */}
+          <div className="border-top-draw absolute top-0 left-0 w-full h-[2px] bg-black origin-left" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-4">
+            {steps.map((step, i) => (
+              <div 
+                key={step.id} 
+                className="group relative border-black/10 lg:border-r border-b lg:border-b-0 min-h-[400px] flex flex-col justify-between p-8 hover:bg-black hover:text-white transition-colors duration-500 ease-out overflow-hidden"
               >
-                {item.id}
-              </motion.div>
+                {/* Vertical Border for Animation (Mobile hidden, Desktop visible) */}
+                <div className="border-vert-draw absolute top-0 left-0 w-[1px] h-full bg-black origin-top hidden lg:block" />
+                
+                {/* Background Hover Accent (Orange Flash) */}
+                <div className="absolute inset-0 bg-orange-600 translate-y-full group-hover:translate-y-[100%] transition-transform duration-0" />
 
-              <div className="relative z-10">
-                <h4 className="text-2xl md:text-3xl font-black uppercase tracking-tighter group-hover:translate-x-2 transition-transform">
-                  {item.title}
-                </h4>
-                <p className="text-gray-500 font-medium leading-relaxed uppercase text-[10px] md:text-xs tracking-widest mt-4">
-                  {item.desc}
-                </p>
+                {/* Top: ID and Tag */}
+                <div className="step-content relative z-10 w-full flex justify-between items-start border-b border-black/10 group-hover:border-white/20 pb-4 transition-colors duration-500">
+                  <span className="text-6xl font-black tracking-tighter leading-none group-hover:text-orange-500 transition-colors duration-300">
+                    {step.id}
+                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-mono uppercase tracking-widest opacity-60 group-hover:opacity-100">
+                      Phase_{step.id}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wide mt-1 px-2 py-0.5 border border-black group-hover:border-orange-500 group-hover:text-orange-500 rounded-full transition-colors">
+                      {step.tag}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Middle: Icon/Action (Reveals on Hover) */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100 rotate-45 group-hover:rotate-0">
+                  <ArrowUpRight size={80} className="text-orange-600" />
+                </div>
+
+                {/* Bottom: Content */}
+                <div className="step-content relative z-10 pt-10">
+                  <h3 className="text-3xl font-black uppercase tracking-tight mb-4 group-hover:translate-x-2 transition-transform duration-500">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm font-medium leading-relaxed opacity-70 max-w-[90%] group-hover:opacity-90 group-hover:text-zinc-300">
+                    {step.desc}
+                  </p>
+                </div>
               </div>
-
-              <motion.div
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                transition={{ duration: 1.5, delay: 0.5 }}
-                className="h-2 w-full bg-black origin-left"
-              />
-              <div className="h-2 w-0 group-hover:w-full bg-orange-600 transition-all duration-500 absolute bottom-0 left-0" />
-            </motion.div>
-          ))}
+            ))}
+            
+            {/* Closing Vertical Border for last item */}
+            <div className="border-vert-draw absolute top-0 right-0 w-[1px] h-full bg-black origin-top hidden lg:block" />
+          </div>
         </div>
       </div>
     </section>

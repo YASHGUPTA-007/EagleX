@@ -38,7 +38,7 @@ export default function EagleCursor() {
         opacity: isVisible ? 1 : 0,
       }}
     >
-      <img src="/eaglecursor.png" alt="" width={130} height={130} />
+      <img src="/eaglecursor.png" alt="" width={100} height={100} />
     </div>
   );
 }
