@@ -1,180 +1,199 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Zap, Globe, Database, Shield, Box, Terminal } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowUpRight, Sparkles, Code2, Zap } from "lucide-react";
+import { motion } from "framer-motion";
 
-const tools = [
+const featuredProjects = [
   {
-    id: "01",
-    title: "NEXT.JS_14",
-    subtitle: "THE ENGINE",
-    desc: "Server-side rendering matrix. Instant transitions.",
-    icon: <Box size={32} />,
-    col: "md:col-span-8",
-    bg: "bg-[#0A0A0A]"
+    id: 1,
+    title: "Skyline Chili",
+    category: "Restaurant",
+    image: "/projects/SkylineChill.png",
+    tags: ["React", "CMS", "E-commerce"]
   },
   {
-    id: "02",
-    title: "VERCEL",
-    subtitle: "THE LAUNCHPAD",
-    desc: "Global edge network deployment.",
-    icon: <Globe size={32} />,
-    col: "md:col-span-4",
-    bg: "bg-[#0A0A0A]" // Standard Dark
+    id: 2,
+    title: "CyreneAI",
+    category: "AI Platform",
+    image: "/projects/CyreneAI.png",
+    tags: ["AI", "Blockchain", "Web3"]
   },
   {
-    id: "03",
-    title: "SUPABASE",
-    subtitle: "THE VAULT",
-    desc: "PostgreSQL database with real-time subscriptions.",
-    icon: <Database size={32} />,
-    col: "md:col-span-4",
-    bg: "bg-[#0A0A0A]"
-  },
-  {
-    id: "04",
-    title: "AUTH_V5",
-    subtitle: "SECURITY",
-    desc: "JWT sessions & encrypted gateways.",
-    icon: <Shield size={32} />,
-    col: "md:col-span-4",
-    bg: "bg-[#0A0A0A]"
-  },
-  {
-    id: "05",
-    title: "TURBOPACK",
-    subtitle: "VELOCITY",
-    desc: "Rust-based compilation pipeline.",
-    icon: <Zap size={32} />,
-    col: "md:col-span-4",
-    bg: "bg-orange-600 text-black" // The Accent Card
+    id: 3,
+    title: "HROne Cloud",
+    category: "HR Tech",
+    image: "/projects/HROne%20Cloud.png",
+    tags: ["AI/ML", "Enterprise", "SaaS"]
   }
 ];
 
-export default function ToolsLoadout() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    
-    const ctx = gsap.context(() => {
-      // 1. Staggered Entry (Heavy slam effect)
-      gsap.from(".tool-card", {
-        scrollTrigger: {
-          trigger: ".grid-container",
-          start: "top 85%",
-        },
-        y: 100,
-        opacity: 0,
-        scale: 0.9,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "back.out(1.7)" // Adds the "slam" physics
-      });
-
-      // 2. Scramble Text Effect on Hover
-      const cards = document.querySelectorAll(".tool-card");
-      cards.forEach((card) => {
-        const title = card.querySelector(".card-title") as HTMLElement;
-        const originalText = title?.innerText || "";
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_//";
-        
-        card.addEventListener("mouseenter", () => {
-          let iterations = 0;
-          const interval = setInterval(() => {
-            title.innerText = originalText
-              .split("")
-              .map((letter, index) => {
-                if (index < iterations) return originalText[index];
-                return chars[Math.floor(Math.random() * chars.length)];
-              })
-              .join("");
-            
-            if (iterations >= originalText.length) clearInterval(interval);
-            iterations += 1 / 2; // Scramble speed
-          }, 30);
-        });
-      });
-
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
+export default function ProjectsPreview() {
+  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
 
   return (
-    <section 
-      ref={containerRef}
-      className="py-32 bg-[#020202] text-white overflow-hidden relative"
-    >
-      {/* Background Grid - faint and precise */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]" />
+    <section className="relative py-24 md:py-32 bg-[#020202] text-white overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:60px_60px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,#FF4D0015,transparent)]" />
 
-      <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
-        {/* HEADER: Minimalist military style */}
-        <div className="flex justify-between items-end mb-16 border-b border-white/10 pb-8">
-          <div>
-            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.8]">
-              Mission<br />
-              <span className="text-orange-600">Loadout</span>
-            </h2>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-right">
-             <div className="flex flex-col">
-               <span className="text-xs font-mono text-zinc-500 uppercase">System Status</span>
-               <span className="text-xl font-black uppercase text-white">All Systems Go</span>
-             </div>
-             <div className="w-12 h-12 border border-white/20 flex items-center justify-center">
-               <Terminal size={20} className="text-orange-600 animate-pulse" />
-             </div>
+        {/* Header */}
+        <div className="mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-3 mb-6"
+          >
+            <Sparkles className="text-[#FF4D00]" size={20} />
+            <span className="text-[#FF4D00] font-mono text-xs uppercase tracking-widest font-bold">
+              Featured Work
+            </span>
+          </motion.div>
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85]"
+            >
+              Projects That <br />
+              <span className="text-[#FF4D00]">Deliver</span>
+            </motion.h2>
+
+            <motion.a
+              href="/work"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group self-start lg:self-end px-8 py-4 bg-[#FF4D00] text-black font-black uppercase text-sm tracking-wider hover:bg-white transition-colors duration-300 flex items-center gap-3"
+            >
+              View All Work
+              <ArrowUpRight className="group-hover:rotate-45 transition-transform duration-300" size={20} />
+            </motion.a>
           </div>
         </div>
 
-        {/* THE LOADOUT GRID */}
-        <div className="grid-container grid grid-cols-1 md:grid-cols-12 gap-4">
-          {tools.map((tool) => (
-            <div 
-              key={tool.id}
-              className={`tool-card group relative ${tool.col} ${tool.bg} border border-white/10 p-8 flex flex-col justify-between min-h-[320px] overflow-hidden hover:border-orange-600 transition-colors duration-300`}
+        {/* Projects Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {featuredProjects.map((project, index) => (
+            <motion.a
+              key={project.id}
+              href="/work"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              onMouseEnter={() => setHoveredProject(project.id)}
+              onMouseLeave={() => setHoveredProject(null)}
+              className="group relative bg-[#0A0A0A] border border-white/10 overflow-hidden hover:border-[#FF4D00] transition-all duration-500"
             >
-              {/* Noise Overlay (Hover) */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none transition-opacity duration-300" />
-              
-              {/* Top Row: Icon & ID */}
-              <div className="relative z-10 flex justify-between items-start">
-                <div className={`p-3 rounded-sm ${tool.bg === 'bg-orange-600 text-black' ? 'bg-black text-orange-600' : 'bg-white/5 text-zinc-400 group-hover:text-orange-600 group-hover:bg-orange-600/10'} transition-all duration-300`}>
-                  {tool.icon}
-                </div>
-                <span className={`font-mono text-xl font-bold opacity-30 ${tool.bg === 'bg-orange-600 text-black' ? 'text-black' : 'text-white'}`}>
-                  {tool.id}
-                </span>
-              </div>
-
-              {/* Bottom Row: Content */}
-              <div className="relative z-10 space-y-4">
-                <div>
-                   <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${tool.bg === 'bg-orange-600 text-black' ? 'text-black/60' : 'text-orange-600'}`}>
-                     {tool.subtitle}
-                   </span>
-                   <h3 className={`card-title text-4xl font-black uppercase leading-none mt-1 tracking-tight ${tool.bg === 'bg-orange-600 text-black' ? 'text-black' : 'text-white'}`}>
-                     {tool.title}
-                   </h3>
-                </div>
+              {/* Image */}
+              <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                <motion.img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover object-top"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.6 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                 
-                <p className={`text-sm font-medium leading-relaxed max-w-[90%] ${tool.bg === 'bg-orange-600 text-black' ? 'text-black/80' : 'text-zinc-500 group-hover:text-zinc-300'} transition-colors`}>
-                  {tool.desc}
-                </p>
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-sm border border-white/20">
+                  <span className="text-[#FF4D00] font-mono text-[10px] uppercase tracking-widest">
+                    {project.category}
+                  </span>
+                </div>
+
+                {/* Number */}
+                <div className="absolute bottom-4 right-4 text-6xl font-black text-white/10 font-mono leading-none">
+                  0{project.id}
+                </div>
               </div>
 
-              {/* Corner Accents (The "Tech" feel) */}
-              <div className={`absolute top-0 right-0 w-3 h-3 border-l border-b ${tool.bg === 'bg-orange-600 text-black' ? 'border-black/20' : 'border-white/20 group-hover:border-orange-600'} transition-colors`} />
-              <div className={`absolute bottom-0 left-0 w-3 h-3 border-r border-t ${tool.bg === 'bg-orange-600 text-black' ? 'border-black/20' : 'border-white/20 group-hover:border-orange-600'} transition-colors`} />
-            </div>
+              {/* Content */}
+              <div className="p-6">
+                <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white group-hover:text-[#FF4D00] transition-colors duration-300 mb-4">
+                  {project.title}
+                </h3>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 bg-white/5 border border-white/10 text-[10px] font-mono text-gray-400 group-hover:border-[#FF4D00]/30 transition-colors"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Corner Accents */}
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/20 group-hover:border-[#FF4D00] transition-colors" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/20 group-hover:border-[#FF4D00] transition-colors" />
+            </motion.a>
           ))}
         </div>
 
+        {/* CTA Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="mt-20 p-10 bg-[#FF4D00] text-black flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div>
+            <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-2">
+              20+ Live Projects
+            </h3>
+            <p className="text-black/70 font-medium">
+              From startups to enterprises, we build digital experiences that perform.
+            </p>
+          </div>
+          <a
+            href="/work"
+            className="group px-8 py-4 bg-black text-white font-black uppercase text-sm tracking-wider hover:bg-white hover:text-black transition-colors duration-300 flex items-center gap-3 whitespace-nowrap"
+          >
+            Explore More
+            <ArrowUpRight className="group-hover:rotate-45 transition-transform duration-300" size={20} />
+          </a>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          className="mt-8 grid grid-cols-3 gap-px bg-white/10"
+        >
+          <div className="bg-[#0A0A0A] p-8 text-center border border-white/5">
+            <Code2 className="w-10 h-10 text-[#FF4D00] mx-auto mb-3" />
+            <div className="text-4xl font-black text-white mb-1">99%</div>
+            <p className="text-gray-400 text-xs uppercase tracking-wider">Satisfaction</p>
+          </div>
+          
+          <div className="bg-[#0A0A0A] p-8 text-center border border-white/5">
+            <Zap className="w-10 h-10 text-[#FF4D00] mx-auto mb-3" />
+            <div className="text-4xl font-black text-white mb-1">8+</div>
+            <p className="text-gray-400 text-xs uppercase tracking-wider">Industries</p>
+          </div>
+          
+          <div className="bg-[#0A0A0A] p-8 text-center border border-white/5">
+            <Sparkles className="w-10 h-10 text-[#FF4D00] mx-auto mb-3" />
+            <div className="text-4xl font-black text-white mb-1">20+</div>
+            <p className="text-gray-400 text-xs uppercase tracking-wider">Live Projects</p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

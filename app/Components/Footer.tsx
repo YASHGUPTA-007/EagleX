@@ -65,7 +65,7 @@ export default function FooterNeural() {
                 {/* THE EMAIL TERMINAL */}
                 <div 
                   onClick={handleCopy}
-                  className="cursor-pointer font-mono text-3xl md:text-5xl lg:text-6xl text-white font-bold tracking-tighter hover:text-orange-500 transition-colors duration-300 flex items-center gap-4"
+                  className="cursor-pointer font-mono text-l md:text-2xl lg:text-4xl text-white font-bold tracking-tighter hover:text-orange-500 transition-colors duration-300 flex items-center gap-4"
                 >
                   <span className="text-zinc-600 select-none">{">"}</span>
                   <span>eaglexdevelopment@gmail.com</span>
@@ -131,7 +131,7 @@ export default function FooterNeural() {
                   <span className="text-[9px] text-green-500 font-mono uppercase tracking-widest">Live</span>
                 </div>
                 <div className="text-xs font-bold text-white uppercase tracking-wider">
-                  Gwalior, IN
+                  Unknown
                 </div>
               </div>
               
