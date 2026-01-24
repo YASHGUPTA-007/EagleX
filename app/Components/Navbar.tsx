@@ -178,18 +178,20 @@ export default function JarvisNavbar() {
           <div className="flex justify-end items-center gap-4 pointer-events-auto">
 
             {/* "Initialize" Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:flex relative group px-6 py-3 bg-orange-600 overflow-hidden items-center gap-2"
-              style={{ clipPath: "polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%)" }}
-            >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              <Zap size={16} className="text-black fill-black" />
-              <span className="font-bold text-xs uppercase tracking-widest text-black">
-                Deploy Unit
-              </span>
-            </motion.button>
+            <Link href="/contact">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden md:flex relative group px-6 py-3 bg-orange-600 overflow-hidden items-center gap-2"
+                style={{ clipPath: "polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%)" }}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <Zap size={16} className="text-black fill-black" />
+                <span className="font-bold text-xs uppercase tracking-widest text-black">
+                  Deploy Unit
+                </span>
+              </motion.button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button

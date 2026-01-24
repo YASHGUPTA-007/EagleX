@@ -11,6 +11,7 @@ import {
   m
 } from "framer-motion";
 import { ArrowUpRight, Terminal, Zap, Activity } from "lucide-react";
+import Link from "next/link";
 
 // --- PROJECT DATA FOR MARQUEE ---
 const projects = [
@@ -251,22 +252,26 @@ export default function Hero() {
 
             {/* Buttons - Side by side on mobile */}
             <div className="flex flex-row items-center justify-center gap-3 md:gap-5 px-4 md:px-0">
-              <button className="group relative flex-1 md:flex-none px-4 md:px-8 py-3 md:py-4 bg-orange-600 text-black font-bold uppercase tracking-wider overflow-hidden text-xs md:text-sm">
-                <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-200 skew-x-12" />
-                <span className="relative flex items-center justify-center gap-1 md:gap-2 group-hover:text-black transition-colors">
-                  <span className="hidden sm:inline">Initialize</span>
-                  <span className="sm:hidden">Start</span>
-                  <ArrowUpRight size={16} className="md:w-[18px] md:h-[18px]" />
-                </span>
-              </button>
+              <Link href="/contact" className="flex-1 md:flex-none">
+                <button className="w-full group relative px-4 md:px-8 py-3 md:py-4 bg-orange-600 text-black font-bold uppercase tracking-wider overflow-hidden text-xs md:text-sm">
+                  <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-200 skew-x-12" />
+                  <span className="relative flex items-center justify-center gap-1 md:gap-2 group-hover:text-black transition-colors">
+                    <span className="hidden sm:inline">Initialize</span>
+                    <span className="sm:hidden">Start</span>
+                    <ArrowUpRight size={16} className="md:w-[18px] md:h-[18px]" />
+                  </span>
+                </button>
+              </Link>
               
-              <button className="group flex-1 md:flex-none px-4 md:px-8 py-3 md:py-4 bg-black/40 backdrop-blur-sm border border-white/20 text-white font-bold uppercase tracking-wider hover:bg-white/10 transition-all text-xs md:text-sm">
-                <span className="flex items-center justify-center gap-1 md:gap-2">
-                  <Activity size={16} className="text-orange-500 group-hover:animate-pulse md:w-[18px] md:h-[18px]" /> 
-                  <span className="hidden sm:inline">Metrics</span>
-                  <span className="sm:hidden">View</span>
-                </span>
-              </button>
+              <Link href="/work" className="flex-1 md:flex-none">
+                <button className="w-full group px-4 md:px-8 py-3 md:py-4 bg-black/40 backdrop-blur-sm border border-white/20 text-white font-bold uppercase tracking-wider hover:bg-white/10 transition-all text-xs md:text-sm">
+                  <span className="flex items-center justify-center gap-1 md:gap-2">
+                    <Activity size={16} className="text-orange-500 group-hover:animate-pulse md:w-[18px] md:h-[18px]" /> 
+                    <span className="hidden sm:inline">Metrics</span>
+                    <span className="sm:hidden">View</span>
+                  </span>
+                </button>
+              </Link>
             </div>
           </div>
 
