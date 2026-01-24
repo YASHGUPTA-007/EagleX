@@ -132,11 +132,15 @@ export default function PageLoader() {
           className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 object-contain transition-all ${phase === 'open' ? 'scale-[10] opacity-0 duration-1000' : 'scale-100 opacity-100 duration-300'} ${phase === 'unlocking' ? 'brightness-200 drop-shadow-[0_0_15px_rgba(255,255,255,1)]' : 'brightness-100'}`}
         />
         
-        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-center w-full">
+        {/* --- FIXED SECTION START --- */}
+        {/* Added dynamic class to fade out opacity when phase is 'open' */}
+        <div className={`absolute -bottom-16 left-1/2 -translate-x-1/2 text-center w-full transition-opacity duration-500 ${phase === 'open' ? 'opacity-0' : 'opacity-100'}`}>
             <div className="text-3xl font-black text-white tracking-tighter">
                 {Math.floor(progress)}<span className="text-orange-500 text-sm align-top">%</span>
             </div>
         </div>
+        {/* --- FIXED SECTION END --- */}
+
       </div>
 
       {/* LAYER 4: LOGS */}
