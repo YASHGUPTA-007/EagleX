@@ -94,7 +94,7 @@ const MarqueeRow = React.memo(({ duration, reverse, isMobile }: { duration: numb
           <img 
             src={src} 
             alt="" 
-            className="w-full h-full object-cover opacity-50" 
+            className="w-full h-full object-cover opacity-100" 
             loading="lazy"
             decoding="async"
           />

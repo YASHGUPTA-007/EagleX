@@ -6,8 +6,10 @@ import { ArrowUpRight } from "lucide-react";
 export default function CTACompact() {
   const [time, setTime] = useState(0);
   const [hovered, setHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const interval = setInterval(() => setTime(prev => prev + 1), 40);
     return () => clearInterval(interval);
   }, []);
@@ -20,32 +22,36 @@ export default function CTACompact() {
   }));
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-orange-600 via-orange-500 to-orange-600 py-20 px-6">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-orange-600 py-20 px-6">
       
       {/* Scrolling Background Text */}
-      <div className="absolute inset-0 flex flex-col justify-center gap-4 select-none pointer-events-none overflow-hidden opacity-[0.15]">
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className="text-[16vw] font-black uppercase italic leading-none whitespace-nowrap text-black"
-            style={{
-              transform: `translateX(${((time * row.speed + row.offset) % 200) - 100}%)`,
-              willChange: "transform"
-            }}
-          >
-            {row.text.repeat(10)}
-          </div>
-        ))}
-      </div>
+      {mounted && (
+        <div className="absolute inset-0 flex flex-col justify-center gap-4 select-none pointer-events-none overflow-hidden opacity-[0.15]">
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className="text-[16vw] font-black uppercase italic leading-none whitespace-nowrap text-black"
+              style={{
+                transform: `translateX(${((time * row.speed + row.offset) % 200) - 100}%)`,
+                willChange: "transform"
+              }}
+            >
+              {row.text.repeat(10)}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Radial Glow */}
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 rounded-full pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, rgba(0,0,0,0.12) 0%, transparent 65%)",
-          transform: `translate(-50%, -50%) scale(${1 + Math.sin(time / 30) * 0.15})`
-        }}
-      />
+      {mounted && (
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(0,0,0,0.12) 0%, transparent 65%)",
+            transform: `translate(-50%, -50%) scale(${1 + Math.sin(time / 30) * 0.15})`
+          }}
+        />
+      )}
 
       {/* Main Content */}
       <div className="relative z-10 text-center max-w-6xl w-full">
@@ -93,15 +99,17 @@ export default function CTACompact() {
         <div className="relative inline-block mb-12 md:mb-20">
           
           {/* Rotating Ring */}
-          <div className="absolute -inset-12 md:-inset-16 pointer-events-none opacity-30">
-            <div
-              className="absolute inset-0 rounded-full border-2 md:border-3 border-dashed border-black/40"
-              style={{ transform: `rotate(${time * 2}deg)` }}
-            />
-          </div>
+          {mounted && (
+            <div className="absolute -inset-12 md:-inset-16 pointer-events-none opacity-30">
+              <div
+                className="absolute inset-0 rounded-full border-2 md:border-3 border-dashed border-black/40"
+                style={{ transform: `rotate(${time * 2}deg)` }}
+              />
+            </div>
+          )}
 
           {/* Orbiting Dots */}
-          {hovered && [...Array(8)].map((_, i) => (
+          {mounted && hovered && [...Array(8)].map((_, i) => (
             <div
               key={i}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none hidden md:block"
@@ -159,20 +167,22 @@ export default function CTACompact() {
             </div>
 
             {/* Rotating Border */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none hidden md:block">
-              <rect
-                x="2" y="2"
-                width="calc(100% - 4px)"
-                height="calc(100% - 4px)"
-                rx="9999"
-                fill="none"
-                stroke="white"
-                strokeWidth="3"
-                strokeDasharray="10 10"
-                strokeDashoffset={hovered ? -time * 2 : 0}
-                className="opacity-0 group-hover:opacity-30 transition-opacity duration-500"
-              />
-            </svg>
+            {mounted && (
+              <svg className="absolute inset-0 w-full h-full pointer-events-none hidden md:block">
+                <rect
+                  x="2" y="2"
+                  width="calc(100% - 4px)"
+                  height="calc(100% - 4px)"
+                  rx="9999"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="3"
+                  strokeDasharray="10 10"
+                  strokeDashoffset={hovered ? -time * 2 : 0}
+                  className="opacity-0 group-hover:opacity-30 transition-opacity duration-500"
+                />
+              </svg>
+            )}
           </a>
         </div>
 
@@ -209,10 +219,10 @@ export default function CTACompact() {
       </div>
 
       {/* Corner Brackets */}
-      <div className="absolute top-0 left-0 w-16 h-16 md:w-20 md:h-20 border-t-3 border-l-3 md:border-t-4 md:border-l-4 border-black/20" />
-      <div className="absolute top-0 right-0 w-16 h-16 md:w-20 md:h-20 border-t-3 border-r-3 md:border-t-4 md:border-r-4 border-black/20" />
-      <div className="absolute bottom-0 left-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-l-3 md:border-b-4 md:border-l-4 border-black/20" />
-      <div className="absolute bottom-0 right-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-r-3 md:border-b-4 md:border-r-4 border-black/20" />
+      <div className="absolute top-0 left-0 w-16 h-16 md:w-20 md:h-20 border-t-[3px] border-l-[3px] md:border-t-4 md:border-l-4 border-black/20" />
+      <div className="absolute top-0 right-0 w-16 h-16 md:w-20 md:h-20 border-t-[3px] border-r-[3px] md:border-t-4 md:border-r-4 border-black/20" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 md:w-20 md:h-20 border-b-[3px] border-l-[3px] md:border-b-4 md:border-l-4 border-black/20" />
+      <div className="absolute bottom-0 right-0 w-16 h-16 md:w-20 md:h-20 border-b-[3px] border-r-[3px] md:border-b-4 md:border-r-4 border-black/20" />
     </section>
   );
 }

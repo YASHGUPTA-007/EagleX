@@ -8,7 +8,7 @@ import {
   useTransform, 
   useScroll 
 } from "framer-motion";
-import { ExternalLink, Code2, Layers, Activity, Zap, Crosshair, Cpu, Globe } from "lucide-react";
+import { ExternalLink, Code2, Layers, Activity,ArrowDown,Cpu } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -193,8 +193,8 @@ const ProjectCursor = ({ active }: { active: boolean }) => {
 // 3. THE MASTERPIECE HERO 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const title1 = useScrambleText("FORGING", 50);
-  const title2 = useScrambleText("LEGACIES", 50);
+  const title1 = useScrambleText("FORGING", 100);
+  const title2 = useScrambleText("LEGACIES", 100);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -213,6 +213,12 @@ const Hero = () => {
     mouseX.set((e.clientX - left) / width);
     mouseY.set((e.clientY - top) / height);
   }
+  const handleScroll = () => {
+    const nextSection = document.getElementById("our-work");
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <section 
@@ -235,7 +241,6 @@ const Hero = () => {
 
       <div className="absolute inset-0 z-20 pointer-events-none p-6 md:p-12 hidden md:block">
         <div className="absolute top-12 left-12 flex flex-col gap-2">
-        
             <div className="h-px w-24 bg-orange-500/30" />
         </div>
         <div className="absolute top-12 right-12 text-right">
@@ -258,29 +263,79 @@ const Hero = () => {
         </div>
       </div>
 
-      <motion.div style={{ rotateX: contentRotateX, rotateY: contentRotateY, transformStyle: "preserve-3d" }} className="relative z-20 flex flex-col items-center text-center max-w-7xl px-6">
-       
-
-        <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-white leading-[0.85] mb-10 select-none drop-shadow-2xl">
-          <div className="relative block overflow-hidden">
-             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-400">{title1}</span>
+      <motion.div 
+        style={{ rotateX: contentRotateX, rotateY: contentRotateY, transformStyle: "preserve-3d" }} 
+        className="relative z-20 flex flex-col items-center text-center max-w-7xl px-6 mt-20 md:mt-32"
+      >
+        {/* Improved Heading */}
+        <h1 className="relative mb-10">
+          {/* FORGING - Keep this good style */}
+          <div className="relative mb-3">
+            <span 
+              className="block text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter leading-none"
+              style={{
+                color: '#ffffff',
+                textShadow: `
+                  0 0 30px rgba(255, 77, 0, 0.4),
+                  5px 5px 0px rgba(0, 0, 0, 0.7)
+                `
+              }}
+            >
+              {title1}
+            </span>
           </div>
-          <div className="relative block mt-2">
-             <span className="block text-[#FF4D00]">{title2}</span>
-             <span className="absolute inset-0 text-[#FF4D00]/20 blur-[20px] pointer-events-none">{title2}</span>
+
+          {/* LEGACIES - Solid fill with strong outline */}
+          <div className="relative">
+            {/* Glow behind */}
+            <span 
+              className="absolute inset-0 block text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter leading-none text-[#FF4D00] blur-xl opacity-60"
+              aria-hidden="true"
+            >
+              {title2}
+            </span>
+            
+            {/* Main solid text with thick stroke */}
+            <span 
+              className="relative block text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter leading-none text-[#FF4D00]"
+              style={{
+  WebkitTextStroke: '3px #FF4D00',
+  paintOrder: 'stroke fill',
+  textShadow: `
+    0 0 20px rgba(255, 77, 0, 0.8),
+    5px 5px 0px rgba(0, 0, 0, 0.6)
+  `
+} as React.CSSProperties}
+            >
+              {title2}
+            </span>
           </div>
         </h1>
 
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }} className="text-gray-300 text-sm md:text-lg max-w-lg leading-relaxed font-light tracking-wide mb-12 bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/5">
+        <motion.p 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 1, duration: 1 }} 
+          className="text-gray-300 text-sm md:text-lg max-w-lg leading-relaxed font-light tracking-wide mb-12 bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/5"
+        >
           <span className="text-orange-500 font-mono text-xs mr-2">[MISSION]</span>
           We fuse code and creativity to build digital ecosystems that feel alive. 
           Performance, aesthetics, and scalability in perfect harmony.
         </motion.p>
 
-        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="group relative px-8 py-4 bg-white text-black font-bold uppercase text-xs tracking-widest overflow-hidden hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow">
-            <div className="absolute inset-0 bg-orange-500 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-            <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">Explore Work <Zap size={14} /></span>
-        </motion.button>
+        <motion.button 
+      onClick={handleScroll} // Added click handler
+      whileHover={{ scale: 1.05 }} 
+      whileTap={{ scale: 0.95 }} 
+      className="group relative px-8 py-4 bg-white text-black font-bold uppercase text-xs tracking-widest overflow-hidden hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow"
+    >
+      <div className="absolute inset-0 bg-orange-500 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
+      <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
+        Scroll Below 
+        {/* Changed Zap to ArrowDown for better context */}
+        <ArrowDown size={16} className="group-hover:translate-y-1 transition-transform duration-300" />
+      </span>
+    </motion.button>
       </motion.div>
     </section>
   );

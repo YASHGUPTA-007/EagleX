@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Flame, Layers, Zap, Activity, Wifi, Terminal, Sparkles, Cpu, Lock, Globe, TriangleAlert, Component, HardDrive } from "lucide-react";
+import { Flame, Layers, Zap, Sparkles, Cpu, Lock, Wifi, TriangleAlert, HardDrive } from "lucide-react";
 
 // --- CUSTOM ICONS ---
 const CodeIcon = ({ size, className }: { size: number; className?: string }) => (
@@ -35,15 +35,19 @@ export default function ArsenalLive() {
   const containerRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
   const [bannerOffset, setBannerOffset] = useState(0);
+  const [mounted, setMounted] = useState(false);
   
   // --- STATE ---
   const [logs, setLogs] = useState(["> EAGLE_X_SYSTEM_BOOT...", "> VERIFYING_ADMIN_ACCESS [YASH_GUPTA]"]);
   const [latency, setLatency] = useState(12);
   const [cpu, setCpu] = useState(42);
   const [activeScanIndex, setActiveScanIndex] = useState(0);
+  const [cpuBars, setCpuBars] = useState([20, 25, 30, 35, 40, 45, 50, 55]);
 
   // --- ENGINE ---
   useEffect(() => {
+    setMounted(true);
+
     // 1. Logs Generator
     const logInterval = setInterval(() => {
       const newLog = randomLogs[Math.floor(Math.random() * randomLogs.length)];
@@ -53,7 +57,11 @@ export default function ArsenalLive() {
     // 2. Telemetry Fluctuation
     const statInterval = setInterval(() => {
       setLatency(prev => Math.max(4, Math.min(25, prev + (Math.random() > 0.5 ? 3 : -3))));
-      setCpu(prev => Math.max(20, Math.min(95, prev + (Math.random() > 0.5 ? 8 : -8))));
+      const newCpu = Math.max(20, Math.min(95, cpu + (Math.random() > 0.5 ? 8 : -8)));
+      setCpu(newCpu);
+      
+      // Update CPU bars
+      setCpuBars(Array(8).fill(0).map(() => Math.random() * newCpu));
     }, 600);
 
     // 3. Auto-Scanner
@@ -64,13 +72,12 @@ export default function ArsenalLive() {
     // 4. Force Banner Full Width Calculation
     const handleResize = () => {
       if (bannerRef.current) {
-        // Calculate distance from left edge of screen to the banner container
         const offset = bannerRef.current.getBoundingClientRect().left;
         setBannerOffset(offset);
       }
     };
     
-    handleResize(); // Initial calc
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -83,6 +90,8 @@ export default function ArsenalLive() {
 
   // --- ANIMATIONS ---
   useEffect(() => {
+    if (!mounted) return;
+    
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       gsap.from(".section-header", {
@@ -95,7 +104,7 @@ export default function ArsenalLive() {
       });
     }, containerRef);
     return () => ctx.revert();
-  }, []);
+  }, [mounted]);
 
   return (
     <section ref={containerRef} className="relative py-32 bg-[#050505] text-white overflow-hidden border-t border-b border-zinc-900">
@@ -122,19 +131,16 @@ export default function ArsenalLive() {
           </div>
 
           <div className="relative space-y-4 mb-20">
-            {/* Connection Line */}
             <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-zinc-800 -z-10" />
 
             {techStack.map((item, index) => {
               const isActive = index === activeScanIndex;
               return (
                 <div key={item.id} className={`group relative pl-16 transition-all duration-500 ${isActive ? 'translate-x-4' : 'translate-x-0'}`}>
-                  {/* Connector */}
                   <div className={`absolute left-8 top-1/2 w-8 h-[1px] transition-colors duration-500 ${isActive ? 'bg-orange-600' : 'bg-zinc-800'}`}>
                     <div className={`absolute right-0 -top-[3px] w-1.5 h-1.5 rounded-full transition-colors ${isActive ? 'bg-orange-500 shadow-[0_0_10px_orange]' : 'bg-zinc-800'}`} />
                   </div>
 
-                  {/* Module Card */}
                   <div className={`relative flex items-center justify-between p-6 border-l-4 transition-all duration-300 overflow-hidden
                     ${isActive ? 'bg-zinc-900 border-l-orange-500 border-zinc-700 shadow-[0_10px_40px_-10px_rgba(0,0,0,1)]' : 'bg-zinc-900/30 border-l-zinc-700 border-transparent hover:bg-zinc-800/50'}
                   `}>
@@ -160,11 +166,7 @@ export default function ArsenalLive() {
             })}
           </div>
 
-          {/* --- THE MASSIVE OVERRIDE SECTION --- */}
-          {/* We use a ref here to calculate exact positioning */}
           <div ref={bannerRef} className="relative mt-12 z-20">
-             
-             {/* Industrial Top Border */}
              <div className="w-full h-2 bg-zinc-800 relative overflow-hidden mb-6">
                  <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ea580c_10px,#ea580c_20px)] opacity-20" />
              </div>
@@ -186,22 +188,16 @@ export default function ArsenalLive() {
                  </p>
              </div>
 
-             {/* THE MARQUEE - CALCULATED FULL WIDTH */}
-             {/* We shift it left by 'bannerOffset' to hit the exact screen edge */}
              <div 
                 className="relative bg-[#0A0A0A] border-y border-zinc-800 py-12 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)_inset]"
                 style={{
                     width: '100vw',
-                    marginLeft: `-${bannerOffset}px`, // This forces it to align to the screen left edge
-                    marginRight: `-${bannerOffset}px` // Optional, keeps symmetry
+                    marginLeft: `-${bannerOffset}px`,
+                    marginRight: `-${bannerOffset}px`
                 }}
              >
-                 {/* Left Fade */}
                  <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-[#050505] to-transparent z-10 pointer-events-none" />
-                 {/* Right Fade */}
                  <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-[#050505] to-transparent z-10 pointer-events-none" />
-
-                 {/* Tech Background Pattern */}
                  <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_center,theme(colors.orange.600),transparent_50%)]" />
 
                  <div className="flex items-center gap-16 animate-[infinite-scroll_40s_linear_infinite] w-max">
@@ -215,12 +211,10 @@ export default function ArsenalLive() {
                      ))}
                  </div>
              </div>
-
           </div>
         </div>
 
         {/* RIGHT COLUMN: THE MONITOR */}
-        {/* We increased z-index here so it can float over the banner if needed, or set to 10 to go under */}
         <div className="lg:col-span-5 monitor-wrapper sticky top-32 h-fit hidden lg:block z-30">
           <div className="monitor-screen relative w-full bg-black border-4 border-zinc-800 rounded-lg shadow-2xl overflow-hidden">
             <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.15),rgba(0,0,0,0.15)_1px,transparent_1px,transparent_2px)] pointer-events-none z-30" />
@@ -246,8 +240,15 @@ export default function ArsenalLive() {
                   </div>
                   <div className="text-2xl font-mono text-white mb-2">{cpu}%</div>
                   <div className="flex gap-[2px] h-6 items-end">
-                    {[...Array(8)].map((_, i) => (
-                      <div key={i} className={`w-full bg-orange-600/80 transition-all duration-300`} style={{ height: `${Math.random() * cpu}%`, opacity: (i/8) + 0.2 }} />
+                    {cpuBars.map((height, i) => (
+                      <div 
+                        key={i} 
+                        className="w-full bg-orange-600/80 transition-all duration-300" 
+                        style={{ 
+                          height: `${height}%`, 
+                          opacity: (i / 8) + 0.2 
+                        }} 
+                      />
                     ))}
                   </div>
                 </div>
@@ -273,7 +274,6 @@ export default function ArsenalLive() {
                 ))}
                 <div className="w-2 h-4 bg-orange-500 animate-pulse mt-1" />
               </div>
-
             </div>
           </div>
         </div>
