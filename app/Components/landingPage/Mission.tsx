@@ -1,36 +1,49 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import { Code2, Smartphone, Globe, Zap, Database, Cpu, Terminal, Crosshair } from "lucide-react";
+import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Activity, Shield, Zap, ArrowUpRight, Crosshair, Terminal } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Device detection hook
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-  
-  return isMobile;
-};
+const capabilities = [
+  {
+    icon: Globe,
+    title: "Web Applications",
+    description: "Full-stack platforms built for scale. React, Next.js, Node.js—enterprise-grade architecture.",
+    specs: ["React/Next.js", "Cloud Deploy", "API Integration"]
+  },
+  {
+    icon: Smartphone,
+    title: "Mobile Solutions",
+    description: "Native & cross-platform apps. iOS, Android, React Native—optimized for performance.",
+    specs: ["iOS/Android", "React Native", "App Store Deploy"]
+  },
+  {
+    icon: Database,
+    title: "AI & Blockchain",
+    description: "ML models, tokenization, Web3 integration. Cutting-edge tech, real-world application.",
+    specs: ["AI/ML Models", "Smart Contracts", "Web3 Integration"]
+  },
+  {
+    icon: Zap,
+    title: "MVP Development",
+    description: "7-day sprints. Launch-ready products that actually work. Fast execution, zero compromise.",
+    specs: ["Rapid Prototyping", "Market Ready", "Iteration Speed"]
+  }
+];
 
-export default function MissionRedesign() {
+export default function CapabilitiesShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const consoleRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth < 768;
+      
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -39,167 +52,177 @@ export default function MissionRedesign() {
         },
       });
 
-      // Staggered entrance for the brutalist text
-      tl.from(".reveal-text", {
-        y: isMobile ? 30 : 80,
+      tl.from(".reveal-header", {
+        y: isMobile ? 30 : 60,
         opacity: 0,
-        stagger: isMobile ? 0.06 : 0.1,
-        duration: isMobile ? 0.7 : 1.2,
+        stagger: 0.08,
+        duration: isMobile ? 0.7 : 1,
         ease: "power4.out",
-      })
-      .from(consoleRef.current, {
-        y: isMobile ? 40 : 0,
-        x: isMobile ? 0 : 100,
-        opacity: 0,
-        rotateY: isMobile ? 0 : -20,
-        duration: isMobile ? 0.9 : 1.5,
-        ease: "expo.out",
-      }, "-=0.6");
-
-      // Mouse parallax for the console (desktop only)
-      if (!isMobile) {
-        const handleMouseMove = (e: MouseEvent) => {
-          const { clientX, clientY } = e;
-          const xPos = (clientX / window.innerWidth - 0.5) * 15;
-          const yPos = (clientY / window.innerHeight - 0.5) * 15;
-
-          gsap.to(consoleRef.current, {
-            rotateY: xPos,
-            rotateX: -yPos,
-            duration: 1,
-            ease: "power2.out",
-          });
-        };
-
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-      }
+      });
     }, containerRef);
-    
+
     return () => ctx.revert();
-  }, [isMobile]);
+  }, []);
 
   return (
-    <section
+    <section 
       ref={containerRef}
-      className="relative min-h-screen bg-[#050505] flex items-center justify-center overflow-hidden py-16 md:py-20 px-5 md:px-6 selection:bg-orange-600 selection:text-white"
+      className="relative py-24 md:py-32 bg-[#050505] text-white overflow-hidden selection:bg-orange-600 selection:text-white"
     >
-      {/* Background Grid & FX */}
+      {/* Background Grid & Glow */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:30px_30px] md:bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_20%,#000_60%,transparent_100%)]" />
-        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[280px] h-[280px] md:w-[600px] md:h-[600px] bg-orange-600/15 rounded-full blur-[100px] md:blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_60%,transparent_100%)]" />
+        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-[120px] pointer-events-none" />
       </div>
 
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-4 items-center relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
-        {/* LEFT CONTENT */}
-        <div className="lg:col-span-7 z-20">
-          <div className="reveal-text flex items-center gap-2.5 mb-7 md:mb-8">
-            <Terminal size={14} className="text-orange-600" />
-            <span className="text-orange-600 font-mono text-[10px] tracking-[0.35em] uppercase font-bold">
-              Protocol // Phase_01
+        {/* Header */}
+        <div className="mb-20 md:mb-24">
+          <div className="reveal-header flex items-center gap-3 mb-6">
+            <Terminal size={16} className="text-orange-600" />
+            <span className="text-orange-600 font-mono text-[10px] uppercase tracking-[0.3em] font-bold">
+              Core_Systems // Capabilities
             </span>
           </div>
 
-          <div ref={titleRef} className="space-y-2 mb-8 md:mb-10">
-            <h2 className="reveal-text text-6xl sm:text-7xl md:text-8xl lg:text-[8vw] font-black text-white leading-[0.85] uppercase tracking-tighter">
-              LETHAL
-            </h2>
-            <h2 className="reveal-text text-6xl sm:text-7xl md:text-8xl lg:text-[8vw] font-black leading-[0.85] uppercase tracking-tighter text-transparent" 
-                style={{ WebkitTextStroke: "2px rgba(255,255,255,0.25)" }}>
-              PRECISION
-            </h2>
-          </div>
-
-          <div className="reveal-text flex gap-5 items-start mb-10 md:mb-12">
-            <div className="hidden sm:flex flex-col items-center gap-2 pt-1.5">
-              <Crosshair size={20} className="text-orange-600" />
-              <div className="w-[2px] h-20 md:h-24 bg-gradient-to-b from-orange-600 to-transparent" />
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 mb-8">
+            <div>
+              <h2 className="reveal-header text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] mb-2">
+                FULL-STACK
+              </h2>
+              <h2 className="reveal-header text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-transparent" 
+                  style={{ WebkitTextStroke: "2px rgba(255,77,0,0.4)" }}>
+                DOMINANCE
+              </h2>
             </div>
-            <p className="max-w-lg text-zinc-300 font-semibold text-[15px] md:text-lg leading-relaxed">
-              WE OPERATE IN THE GRAY AREA BETWEEN <span className="text-white font-black">IMPOSSIBLE DEADLINES</span> AND <span className="text-white font-black">PERFECT EXECUTION</span>. 
-              OUR MVPS ARE NOT JUST PROTOTYPES—THEY ARE WEAPONS ENGINEERED FOR DOMINATION.
-            </p>
-          </div>
 
-          <button className="reveal-text group relative flex items-center justify-center gap-4 w-full md:w-auto px-8 py-5 bg-orange-600 text-black font-black uppercase text-sm tracking-[0.15em] hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(234,88,12,0.3)]">
-            <span>Initiate Deployment</span>
-            <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-          </button>
+            <div className="reveal-header flex gap-4 items-start max-w-xl lg:pt-4">
+              <div className="hidden sm:flex flex-col items-center gap-2 pt-1">
+                <Crosshair size={18} className="text-orange-600" />
+                <div className="w-[2px] h-20 bg-gradient-to-b from-orange-600 to-transparent" />
+              </div>
+              <p className="text-zinc-300 text-base md:text-lg leading-relaxed">
+                FROM <span className="text-white font-black">CONCEPT TO DEPLOYMENT</span>, WE HANDLE THE ENTIRE STACK. 
+                WEB, MOBILE, AI, BLOCKCHAIN—WHATEVER IT TAKES TO WIN.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT CONTENT: THE CONSOLE */}
-        <div className="lg:col-span-5 perspective-2000 relative">
-          <div 
-            ref={consoleRef}
-            className="w-full bg-zinc-900/40 border border-white/20 rounded-xl backdrop-blur-md p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden"
-            style={{ transformStyle: isMobile ? "flat" : "preserve-3d" }}
-          >
-            <div className="bg-[#0A0A0A] rounded-lg p-5 md:p-6 border border-white/10 relative">
-              {/* Scanline UI */}
+        {/* Capabilities Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          {capabilities.map((capability, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: 0.4 + index * 0.1 }}
+              className="group relative bg-zinc-900/40 border border-white/20 hover:border-orange-600 transition-all duration-500 backdrop-blur-md p-8 md:p-10"
+            >
+              {/* Scanline Effect */}
               <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[size:100%_4px] pointer-events-none opacity-40" />
               
-              <div className="flex justify-between items-start mb-10 md:mb-12">
-                <div>
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="w-2.5 h-2.5 bg-orange-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
-                    <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-[0.2em] font-semibold">Neural_Link_Active</span>
-                  </div>
-                  <div className="text-xs font-mono text-zinc-500">ID: EAGLE_X_992</div>
+              {/* Icon */}
+              <div className="relative mb-6">
+                <div className="w-16 h-16 bg-orange-600/10 border border-orange-600/30 flex items-center justify-center group-hover:bg-orange-600/20 group-hover:border-orange-600 transition-all duration-500">
+                  <capability.icon className="text-orange-600" size={32} strokeWidth={2.5} />
                 </div>
-                <div className="px-3 py-1.5 bg-orange-600/15 border border-orange-600/30 text-[11px] font-mono text-orange-400 rounded-md font-bold">
-                  LOAD: 94.2%
-                </div>
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/20 group-hover:border-orange-600 transition-colors" />
               </div>
 
-              {/* Data Waveform Area */}
-              <div className="h-28 md:h-32 w-full bg-gradient-to-br from-orange-600/10 to-orange-600/5 rounded-lg border border-orange-600/20 mb-8 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                   <svg viewBox="0 0 200 100" className="w-full h-full stroke-orange-500 fill-none" strokeWidth="2">
-                     <path d="M0 50 Q 25 10 50 50 T 100 50 T 150 50 T 200 50">
-                        <animate attributeName="d" dur="3s" repeatCount="indefinite"
-                          values="M0 50 Q 25 10 50 50 T 100 50 T 150 50 T 200 50;
-                                  M0 50 Q 25 90 50 50 T 100 50 T 150 50 T 200 50;
-                                  M0 50 Q 25 10 50 50 T 100 50 T 150 50 T 200 50" />
-                     </path>
-                   </svg>
-                </div>
-                <div className="relative z-10 text-center px-3">
-                  <div className="text-3xl md:text-4xl font-black text-white italic tracking-tighter drop-shadow-lg">7_DAY_SPRINT</div>
-                  <div className="text-[10px] font-mono text-orange-500 uppercase tracking-[0.25em] mt-1 font-bold">Overclocking Enabled</div>
-                </div>
+              {/* Content */}
+              <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white group-hover:text-orange-600 transition-colors duration-300 mb-4">
+                {capability.title}
+              </h3>
+
+              <p className="text-zinc-400 text-base leading-relaxed mb-6">
+                {capability.description}
+              </p>
+
+              {/* Specs */}
+              <div className="space-y-2">
+                {capability.specs.map((spec, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
+                    <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                      {spec}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="p-4 border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] rounded-lg">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Shield size={14} className="text-zinc-400" />
-                    <span className="text-[9px] text-zinc-400 font-mono uppercase tracking-wider font-bold">Security</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-white font-mono">AES_256_ON</div>
-                </div>
-                <div className="p-4 border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] rounded-lg">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Zap size={14} className="text-orange-500" />
-                    <span className="text-[9px] text-zinc-400 font-mono uppercase tracking-wider font-bold">Latency</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-white font-mono">0.002ms</div>
-                </div>
-              </div>
-
-              {/* Console Footer */}
-              <div className="mt-8 pt-4 border-t border-white/10 flex justify-between items-center">
-                <div className="flex gap-1.5">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-1.5 h-1.5 bg-orange-600/50 rounded-full" />
-                  ))}
-                </div>
-                <Activity size={14} className="text-orange-600 opacity-60" />
-              </div>
-            </div>
-          </div>
+              {/* Corner Accent */}
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/20 group-hover:border-orange-600 transition-colors" />
+            </motion.div>
+          ))}
         </div>
+
+        {/* Tech Stack Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.8 }}
+          className="mt-20 p-8 md:p-10 bg-zinc-900/40 border border-white/20 backdrop-blur-md"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <Cpu size={20} className="text-orange-600" />
+            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white">
+              Tech Arsenal
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              "React/Next.js",
+              "Node.js/Python",
+              "MongoDB/PostgreSQL",
+              "AWS/Vercel",
+              "React Native",
+              "TensorFlow/PyTorch",
+              "Solidity/Web3",
+              "Docker/K8s"
+            ].map((tech, i) => (
+              <div 
+                key={i}
+                className="px-4 py-3 bg-white/5 border border-white/10 hover:border-orange-600/30 hover:bg-orange-600/10 transition-all duration-300 text-center"
+              >
+                <span className="text-sm font-mono text-zinc-300 font-bold">
+                  {tech}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.9 }}
+          className="mt-8 grid grid-cols-3 gap-px bg-white/10"
+        >
+          <div className="bg-[#0A0A0A] p-6 md:p-8 text-center border border-white/10">
+            <Code2 className="w-8 h-8 md:w-10 md:h-10 text-orange-600 mx-auto mb-3" strokeWidth={2.5} />
+            <div className="text-3xl md:text-4xl font-black text-white mb-1 font-mono">100%</div>
+            <p className="text-zinc-400 text-[10px] uppercase tracking-[0.2em] font-bold">Code Quality</p>
+          </div>
+          
+          <div className="bg-[#0A0A0A] p-6 md:p-8 text-center border border-white/10">
+            <Zap className="w-8 h-8 md:w-10 md:h-10 text-orange-600 mx-auto mb-3" strokeWidth={2.5} />
+            <div className="text-3xl md:text-4xl font-black text-white mb-1 font-mono">7d</div>
+            <p className="text-zinc-400 text-[10px] uppercase tracking-[0.2em] font-bold">MVP Sprint</p>
+          </div>
+          
+          <div className="bg-[#0A0A0A] p-6 md:p-8 text-center border border-white/10">
+            <Database className="w-8 h-8 md:w-10 md:h-10 text-orange-600 mx-auto mb-3" strokeWidth={2.5} />
+            <div className="text-3xl md:text-4xl font-black text-white mb-1 font-mono">∞</div>
+            <p className="text-zinc-400 text-[10px] uppercase tracking-[0.2em] font-bold">Scalability</p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

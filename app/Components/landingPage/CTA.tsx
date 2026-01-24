@@ -20,7 +20,7 @@ export default function CTACompact() {
   }));
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-orange-600 py-20 px-6">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-orange-600 via-orange-500 to-orange-600 py-20 px-6">
       
       {/* Scrolling Background Text */}
       <div className="absolute inset-0 flex flex-col justify-center gap-4 select-none pointer-events-none overflow-hidden opacity-[0.15]">
@@ -40,7 +40,7 @@ export default function CTACompact() {
 
       {/* Radial Glow */}
       <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 rounded-full pointer-events-none"
         style={{
           background: "radial-gradient(circle, rgba(0,0,0,0.12) 0%, transparent 65%)",
           transform: `translate(-50%, -50%) scale(${1 + Math.sin(time / 30) * 0.15})`
@@ -71,11 +71,11 @@ export default function CTACompact() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = 'black';
-                e.currentTarget.style.WebkitTextStroke = '0px black';
+                e.currentTarget.style.webkitTextStroke = '0px black';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'transparent';
-                e.currentTarget.style.WebkitTextStroke = '3px black';
+                e.currentTarget.style.webkitTextStroke = '3px black';
               }}
             >
               NOW
@@ -139,7 +139,7 @@ export default function CTACompact() {
                 className="w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-500 bg-orange-600 group-hover:bg-black group-hover:rotate-45"
               >
                 <ArrowUpRight 
-                  size={window.innerWidth < 768 ? 28 : 36}
+                  size={typeof window !== 'undefined' && window.innerWidth < 768 ? 28 : 36}
                   className="transition-all duration-500 text-black group-hover:text-orange-600"
                   style={{
                     transform: hovered ? 'rotate(-45deg) scale(1.1)' : 'rotate(0deg)'
@@ -211,8 +211,8 @@ export default function CTACompact() {
       {/* Corner Brackets */}
       <div className="absolute top-0 left-0 w-16 h-16 md:w-20 md:h-20 border-t-3 border-l-3 md:border-t-4 md:border-l-4 border-black/20" />
       <div className="absolute top-0 right-0 w-16 h-16 md:w-20 md:h-20 border-t-3 border-r-3 md:border-t-4 md:border-r-4 border-black/20" />
-      <div className="absolute bottom-0 left-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-l-3 md:border-t-4 md:border-l-4 border-black/20" />
-      <div className="absolute bottom-0 right-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-r-3 md:border-t-4 md:border-r-4 border-black/20" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-l-3 md:border-b-4 md:border-l-4 border-black/20" />
+      <div className="absolute bottom-0 right-0 w-16 h-16 md:w-20 md:h-20 border-b-3 border-r-3 md:border-b-4 md:border-r-4 border-black/20" />
     </section>
   );
 }
