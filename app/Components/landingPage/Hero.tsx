@@ -175,7 +175,7 @@ export default function Hero() {
           className="absolute inset-0 z-0 pointer-events-none select-none flex items-center justify-center will-change-transform"
         >
           {/* 1. MARQUEE LAYER - Better positioning for mobile */}
-          <div className="absolute inset-0 z-0 flex flex-col justify-center gap-3 md:gap-6 opacity-90 grayscale -rotate-6 scale-110 md:scale-125">
+          <div className="absolute inset-0 z-0 flex flex-col justify-center gap-3 md:gap-6 opacity-90 grayscale -rotate-6 scale-150 md:scale-150">
             <MarqueeRow duration={40} isMobile={isMobile} />
             <MarqueeRow duration={50} reverse isMobile={isMobile} />
             <MarqueeRow duration={60} isMobile={isMobile} />
