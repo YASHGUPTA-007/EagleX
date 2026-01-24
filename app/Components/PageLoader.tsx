@@ -127,7 +127,7 @@ export default function PageLoader() {
         
         {/* Eagle on top, outside hexagon clipping */}
         <img 
-          src="/Eaglex3.png" 
+          src="/Eaglex4.png" 
           alt="EagleX Logo" 
           className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 object-contain transition-all ${phase === 'open' ? 'scale-[10] opacity-0 duration-1000' : 'scale-100 opacity-100 duration-300'} ${phase === 'unlocking' ? 'brightness-200 drop-shadow-[0_0_15px_rgba(255,255,255,1)]' : 'brightness-100'}`}
         />
