@@ -16,6 +16,7 @@ import {
   LazyMotion,
   domAnimation,
   m,
+  motion,
 } from "framer-motion";
 import {
   Zap,
@@ -571,27 +572,70 @@ export default function LuckyDrawPage() {
               </span>
             </m.div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] uppercase mb-6 md:mb-8">
-              <div className="flex flex-col items-center gap-1 md:gap-2">
-                <span className="relative inline-block">
-                  WIN A FREE
-                  {!isMobile && (
-                    <>
-                      <span className="absolute inset-0 text-red-500 opacity-50 mix-blend-screen translate-x-[2px] pointer-events-none">
-                        WIN A FREE
-                      </span>
-                      <span className="absolute inset-0 text-blue-500 opacity-50 mix-blend-screen -translate-x-[2px] pointer-events-none">
-                        WIN A FREE
-                      </span>
-                    </>
-                  )}
-                </span>
+           <h1 className="relative mb-6 md:mb-8">
+  {/* Background cutout text */}
+  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-5">
+    <span className="text-[120px] md:text-[280px] font-black uppercase tracking-tighter text-white">
+      FREE
+    </span>
+  </div>
+  
+  {/* Main headline */}
+  <div className="relative flex flex-col items-center gap-2 md:gap-4">
+    {/* Top line with border accent */}
+    <div className="relative">
+      <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 md:w-16 h-1 bg-orange-600" />
+      <span className="text-2xl md:text-5xl font-bold uppercase tracking-[0.2em] text-zinc-400 font-mono">
+        Win a Free
+      </span>
+      <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 md:w-16 h-1 bg-orange-600" />
+    </div>
 
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-700">
-                  {mounted ? <ScrambleText text="WEBSITE" /> : "WEBSITE"}
-                </span>
-              </div>
-            </h1>
+    {/* Main word - stacked letters effect */}
+    <div className="relative">
+      <div className="flex items-center gap-1 md:gap-2">
+        {["W", "E", "B", "S", "I", "T", "E"].map((letter, i) => (
+         <m.span
+            key={i}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 + i * 0.05, duration: 0.3 }}
+            className="relative inline-block"
+          >
+            <span className="text-5xl sm:text-7xl md:text-[140px] lg:text-[180px] font-black uppercase leading-none text-white drop-shadow-[0_0_30px_rgba(234,88,12,0.3)]"
+              style={{
+                fontFamily: 'Arial Black, sans-serif',
+                textShadow: '4px 4px 0px rgba(0,0,0,0.8), 8px 8px 0px rgba(234,88,12,0.2)'
+              }}
+            >
+              {mounted && i === 6 ? <ScrambleText text={letter} startDelay={800} /> : letter}
+            </span>
+            {/* Orange underline on random letters */}
+            {[1, 3, 6].includes(i) && (
+              <span className="absolute -bottom-2 left-0 right-0 h-2 md:h-4 bg-orange-600 opacity-80" />
+            )}
+          </m.span>
+        ))}
+      </div>
+      
+      {/* Distressed border frame */}
+      <div className="absolute -inset-4 md:-inset-8 border-4 border-orange-600/20 pointer-events-none"
+        style={{
+          clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%, 0 100%, 100% 100%, 100% 100%, 100% 0, 100% 0, 0 0, 0 20px, calc(100% - 20px) 20px, calc(100% - 20px) calc(100% - 20px), 20px calc(100% - 20px), 20px 20px, 0 20px)'
+        }}
+      />
+    </div>
+
+    {/* Value callout */}
+    <div className="flex items-center gap-3 mt-2">
+      <div className="h-px w-12 md:w-20 bg-gradient-to-r from-transparent to-orange-600" />
+      <span className="text-sm md:text-xl font-black uppercase tracking-[0.3em] text-orange-600 px-4 py-1 bg-orange-600/10 border-2 border-orange-600">
+        $5,000 Value
+      </span>
+      <div className="h-px w-12 md:w-20 bg-gradient-to-l from-transparent to-orange-600" />
+    </div>
+  </div>
+</h1>
 
             <p className="max-w-xl mx-auto text-gray-200 text-base md:text-lg lg:text-xl font-medium leading-relaxed mb-8 md:mb-10 px-4 md:px-0">
               Forging high-performance digital infrastructure for the next
