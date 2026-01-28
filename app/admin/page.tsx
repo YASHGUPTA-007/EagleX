@@ -7,8 +7,9 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { LayoutDashboard, Mail, LogOut, Trash2, Eye, CheckCircle, X } from 'lucide-react';
+import { LayoutDashboard, Mail, LogOut, Trash2, Eye, CheckCircle, X, Ticket } from 'lucide-react';
 
+// --- TYPES ---
 interface Contact {
   id: string;
   name: string;
@@ -17,18 +18,37 @@ interface Contact {
   message: string;
   status: string;
   createdAt: any;
+}
+
+interface LuckyDrawEntry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  projectIdea: string;
+  companyName?: string;
+  website?: string;
+  createdAt: any;
+  status: string; // e.g., 'pending', 'read'
   ipAddress?: string;
-  userAgent?: string;
 }
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Data States
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [luckyDrawEntries, setLuckyDrawEntries] = useState<LuckyDrawEntry[]>([]);
+  
+  // Selection States
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<LuckyDrawEntry | null>(null);
+  
   const router = useRouter();
 
+  // --- AUTH CHECK ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -38,14 +58,12 @@ export default function AdminDashboard() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
-  // Fetch contacts from Firestore in real-time
+  // --- FETCH CONTACTS ---
   useEffect(() => {
     const q = query(collection(db, 'contacts'), orderBy('createdAt', 'desc'));
-    
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const contactsData: Contact[] = [];
       snapshot.forEach((doc) => {
@@ -53,10 +71,23 @@ export default function AdminDashboard() {
       });
       setContacts(contactsData);
     });
-
     return () => unsubscribe();
   }, []);
 
+  // --- FETCH LUCKY DRAW ENTRIES ---
+  useEffect(() => {
+    const q = query(collection(db, 'lucky_draw'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const entriesData: LuckyDrawEntry[] = [];
+      snapshot.forEach((doc) => {
+        entriesData.push({ id: doc.id, ...doc.data() } as LuckyDrawEntry);
+      });
+      setLuckyDrawEntries(entriesData);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // --- ACTIONS ---
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -66,29 +97,39 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteContact = async (id: string) => {
-    if (confirm('Are you sure you want to delete this contact?')) {
+  // Generic Delete Helper
+  const deleteDocument = async (collectionName: string, id: string) => {
+    if (confirm('Are you sure you want to delete this record? This cannot be undone.')) {
       try {
-        await deleteDoc(doc(db, 'contacts', id));
-        if (selectedContact?.id === id) setSelectedContact(null);
+        await deleteDoc(doc(db, collectionName, id));
+        // Close modal if the deleted item was selected
+        if (collectionName === 'contacts' && selectedContact?.id === id) setSelectedContact(null);
+        if (collectionName === 'lucky_draw' && selectedEntry?.id === id) setSelectedEntry(null);
       } catch (error) {
-        console.error('Error deleting contact:', error);
+        console.error(`Error deleting from ${collectionName}:`, error);
       }
     }
   };
 
-  const handleMarkAsRead = async (id: string) => {
+  // Mark Lucky Draw as Read (Optional logic)
+  const handleMarkEntryRead = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'contacts', id), {
-        status: 'read'
-      });
+      await updateDoc(doc(db, 'lucky_draw', id), { status: 'read' });
     } catch (error) {
-      console.error('Error updating contact:', error);
+      console.error('Error updating entry:', error);
+    }
+  };
+   const handleMarkContactRead = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'contacts', id), { status: 'read' });
+    } catch (error) {
+      console.error('Error updating entry:', error);
     }
   };
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'N/A';
+    // Firestore timestamp or standard Date string
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     return date.toLocaleString();
   };
@@ -112,7 +153,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="relative z-10 flex min-h-screen">
-        {/* Sidebar */}
+        
+        {/* --- SIDEBAR --- */}
         <aside className="w-64 bg-black/50 border-r border-white/10 backdrop-blur-md fixed h-full z-20">
           <div className="p-6 border-b border-white/10 flex items-center gap-3">
              <div className="relative w-8 h-8">
@@ -130,6 +172,7 @@ export default function AdminDashboard() {
           </div>
           
           <nav className="p-4 space-y-2 mt-4">
+            {/* Overview Tab */}
             <button
               onClick={() => setActiveTab('overview')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded text-sm font-medium transition-all duration-300 ${
@@ -141,6 +184,8 @@ export default function AdminDashboard() {
               <LayoutDashboard size={18} />
               OVERVIEW
             </button>
+
+            {/* Contacts Tab */}
             <button
               onClick={() => setActiveTab('contacts')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded text-sm font-medium transition-all duration-300 relative group ${
@@ -154,6 +199,24 @@ export default function AdminDashboard() {
               {contacts.filter(c => c.status === 'new').length > 0 && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-orange-600 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {contacts.filter(c => c.status === 'new').length}
+                </span>
+              )}
+            </button>
+
+            {/* Lucky Draw Tab (NEW) */}
+            <button
+              onClick={() => setActiveTab('luckydraw')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded text-sm font-medium transition-all duration-300 relative group ${
+                activeTab === 'luckydraw'
+                  ? 'bg-orange-600/10 text-orange-500 border border-orange-600/20'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <Ticket size={18} />
+              LUCKY DRAW
+              {luckyDrawEntries.filter(e => e.status === 'pending').length > 0 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {luckyDrawEntries.filter(e => e.status === 'pending').length}
                 </span>
               )}
             </button>
@@ -179,8 +242,10 @@ export default function AdminDashboard() {
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* --- MAIN CONTENT AREA --- */}
         <main className="flex-1 ml-64 p-8">
+          
+          {/* === OVERVIEW TAB === */}
           {activeTab === 'overview' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="flex justify-between items-end border-b border-white/10 pb-6">
@@ -197,15 +262,10 @@ export default function AdminDashboard() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { label: 'Total Inquiries', value: contacts.length, sub: 'Lifetime Volume', icon: '✉️', color: 'blue' },
-                  { label: 'Active Alerts', value: contacts.filter(c => c.status === 'new').length, sub: 'Unread Messages', icon: '🚨', color: 'orange' },
-                  { label: 'Processed', value: contacts.filter(c => c.status === 'read').length, sub: 'Archived / Read', icon: '✓', color: 'green' },
-                  { label: 'Weekly Traffic', value: contacts.filter(c => {
-                      const weekAgo = new Date();
-                      weekAgo.setDate(weekAgo.getDate() - 7);
-                      const contactDate = c.createdAt?.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-                      return contactDate > weekAgo;
-                    }).length, sub: 'Last 7 Days', icon: '📈', color: 'purple' }
+                  { label: 'Total Inquiries', value: contacts.length, sub: 'Contact Form', icon: '✉️', color: 'blue' },
+                  { label: 'Draw Entries', value: luckyDrawEntries.length, sub: 'Lucky Draw', icon: '🎟️', color: 'purple' },
+                  { label: 'Active Alerts', value: contacts.filter(c => c.status === 'new').length + luckyDrawEntries.filter(e => e.status === 'pending').length, sub: 'Unread Items', icon: '🚨', color: 'orange' },
+                  { label: 'Weekly Traffic', value: contacts.length + luckyDrawEntries.length, sub: 'All Time', icon: '📈', color: 'green' } 
                 ].map((stat, i) => (
                   <div key={i} className="bg-zinc-900/50 border border-white/5 p-6 relative group hover:border-orange-600/30 transition-all duration-300">
                     <div className={`absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-${stat.color === 'orange' ? 'orange-600' : 'white/20'} to-transparent opacity-50`} />
@@ -219,37 +279,41 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              {/* Recent Activity */}
+              {/* Recent Activity (Combined) */}
               <div className="bg-zinc-900/30 border border-white/5 p-6">
                 <h3 className="text-lg font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
                   <span className="w-1 h-4 bg-orange-600" />
                   Recent Transmissions
                 </h3>
                 <div className="space-y-2">
-                  {contacts.slice(0, 5).map((contact) => (
-                    <div key={contact.id} className="flex items-center justify-between p-4 bg-black/40 border border-white/5 hover:border-white/10 transition-all group">
+                  {/* Merge and sort both lists by date for the overview */}
+                  {[...contacts.map(c => ({...c, type: 'contact'})), ...luckyDrawEntries.map(e => ({...e, type: 'entry', subject: 'Lucky Draw Entry'}))]
+                    .sort((a, b) => (b.createdAt?.toDate?.() || 0) - (a.createdAt?.toDate?.() || 0))
+                    .slice(0, 5)
+                    .map((item: any) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-black/40 border border-white/5 hover:border-white/10 transition-all group">
                       <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-zinc-400 font-bold border border-white/5 group-hover:border-orange-500/50 group-hover:text-orange-500 transition-all">
-                          {contact.name.charAt(0).toUpperCase()}
+                        <div className={`w-8 h-8 rounded flex items-center justify-center font-bold border ${item.type === 'entry' ? 'bg-purple-900/20 text-purple-500 border-purple-500/20' : 'bg-zinc-800 text-zinc-400 border-white/5'}`}>
+                          {item.type === 'entry' ? 'LD' : item.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-bold text-sm text-zinc-200 group-hover:text-white">{contact.name}</p>
-                          <p className="text-xs text-zinc-500 font-mono">{contact.subject}</p>
+                          <p className="font-bold text-sm text-zinc-200 group-hover:text-white">{item.name}</p>
+                          <p className="text-xs text-zinc-500 font-mono">{item.type === 'entry' ? 'Lucky Draw Entry' : item.subject}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-zinc-600 font-mono">{formatDate(contact.createdAt)}</span>
+                        <span className="text-xs text-zinc-600 font-mono">{formatDate(item.createdAt)}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded border ${
-                          contact.status === 'new' 
+                          (item.status === 'new' || item.status === 'pending')
                             ? 'bg-orange-600/10 text-orange-500 border-orange-600/20' 
                             : 'bg-zinc-800 text-zinc-500 border-zinc-700'
                         } uppercase tracking-wider`}>
-                          {contact.status}
+                          {item.status || 'read'}
                         </span>
                       </div>
                     </div>
                   ))}
-                  {contacts.length === 0 && (
+                  {(contacts.length === 0 && luckyDrawEntries.length === 0) && (
                     <div className="text-zinc-600 text-center py-12 font-mono text-sm border border-dashed border-white/10">
                       // NO DATA FOUND IN STREAM
                     </div>
@@ -259,6 +323,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* === CONTACTS TAB === */}
           {activeTab === 'contacts' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full flex flex-col">
               <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-8">
@@ -320,7 +385,7 @@ export default function AdminDashboard() {
                                   <Eye size={16} />
                                 </button>
                                 <button 
-                                  onClick={() => handleDeleteContact(contact.id)}
+                                  onClick={() => deleteDocument('contacts', contact.id)}
                                   className="p-2 hover:bg-red-500/10 text-zinc-500 hover:text-red-400 rounded transition-colors"
                                   title="Delete Record"
                                 >
@@ -335,90 +400,230 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* Modal Overlay */}
-              {selectedContact && (
-                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-                  <div className="bg-[#0A0A0A] border border-white/10 w-full max-w-2xl shadow-2xl relative">
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-600 to-transparent" />
-                    
-                    <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-8 bg-orange-600" />
-                        <h3 className="text-xl font-black uppercase tracking-tight">Transmission Details</h3>
-                      </div>
-                      <button 
-                        onClick={() => setSelectedContact(null)}
-                        className="text-zinc-500 hover:text-white hover:rotate-90 transition-all duration-300"
-                      >
-                        <X size={24} />
-                      </button>
-                    </div>
+          {/* === LUCKY DRAW TAB === */}
+          {activeTab === 'luckydraw' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full flex flex-col">
+              <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-8">
+                <div>
+                  <h2 className="text-4xl font-black uppercase tracking-tight mb-2">Lucky Draw</h2>
+                  <p className="text-zinc-500 font-mono text-sm">Entry Participants</p>
+                </div>
+                <div className="flex gap-2">
+                   <div className="px-3 py-1 bg-purple-600/10 border border-purple-600/20 text-purple-500 text-xs font-mono uppercase">
+                     Pending: {luckyDrawEntries.filter(e => e.status === 'pending').length}
+                   </div>
+                   <div className="px-3 py-1 bg-zinc-800 border border-zinc-700 text-zinc-400 text-xs font-mono uppercase">
+                     Total: {luckyDrawEntries.length}
+                   </div>
+                </div>
+              </div>
 
-                    <div className="p-8 space-y-6 font-mono">
-                      <div className="grid grid-cols-2 gap-8">
-                        <div>
-                          <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Sender Identity</label>
-                          <div className="text-lg font-bold text-white">{selectedContact.name}</div>
-                          <a href={`mailto:${selectedContact.email}`} className="text-sm text-orange-500 hover:text-orange-400 hover:underline">{selectedContact.email}</a>
-                        </div>
-                        <div className="text-right">
-                          <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Received At</label>
-                          <div className="text-sm text-zinc-300">{formatDate(selectedContact.createdAt)}</div>
-                          {selectedContact.ipAddress && <div className="text-xs text-zinc-700 mt-1">IP: {selectedContact.ipAddress}</div>}
-                        </div>
-                      </div>
-
-                      <div className="border-t border-white/5 pt-6">
-                        <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Subject Line</label>
-                        <div className="text-base text-zinc-300 font-bold border-l-2 border-zinc-700 pl-4">{selectedContact.subject}</div>
-                      </div>
-
-                      <div className="border-t border-white/5 pt-6">
-                        <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Message Payload</label>
-                        <div className="bg-black border border-white/10 p-6 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">
-                          {selectedContact.message}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-between items-center">
-                       <div className="flex gap-2">
-                          {selectedContact.status === 'new' ? (
-                            <button
-                              onClick={() => {
-                                handleMarkAsRead(selectedContact.id);
-                                setSelectedContact(prev => prev ? {...prev, status: 'read'} : null);
-                              }}
-                              className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 border border-green-500/20 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
-                            >
-                              <CheckCircle size={14} />
-                              Acknowledge
-                            </button>
-                          ) : (
-                            <span className="flex items-center gap-2 text-zinc-600 px-4 py-2 text-xs font-bold uppercase tracking-wider border border-white/5 bg-black/20 cursor-not-allowed">
-                              <CheckCircle size={14} />
-                              Archived
-                            </span>
-                          )}
-                       </div>
-                       
-                       <button
-                          onClick={() => {
-                            handleDeleteContact(selectedContact.id);
-                            setSelectedContact(null);
-                          }}
-                          className="flex items-center gap-2 text-red-500 hover:text-red-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
-                        >
-                          <Trash2 size={14} />
-                          Purge Record
-                        </button>
-                    </div>
+              {luckyDrawEntries.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 border border-dashed border-white/10 rounded-lg bg-white/[0.01]">
+                  <Ticket size={48} className="mb-4 opacity-20" />
+                  <h3 className="text-xl font-bold uppercase tracking-widest mb-2 opacity-50">No Entries</h3>
+                  <p className="font-mono text-sm opacity-50">The pot is empty.</p>
+                </div>
+              ) : (
+                <div className="border border-white/10 rounded overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-zinc-900/80 text-zinc-500 font-mono text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="px-6 py-4 font-medium border-b border-white/10">Status</th>
+                          <th className="px-6 py-4 font-medium border-b border-white/10">Participant</th>
+                          <th className="px-6 py-4 font-medium border-b border-white/10">Contact</th>
+                          <th className="px-6 py-4 font-medium border-b border-white/10">Project Idea</th>
+                          <th className="px-6 py-4 font-medium border-b border-white/10 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 bg-black/20">
+                        {luckyDrawEntries.map((entry) => (
+                          <tr key={entry.id} className="hover:bg-white/[0.02] transition-colors group">
+                             <td className="px-6 py-4">
+                              <span className={`w-2 h-2 rounded-full inline-block mr-2 ${entry.status === 'pending' ? 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]' : 'bg-zinc-700'}`} />
+                              <span className={`text-xs font-mono uppercase ${entry.status === 'pending' ? 'text-white' : 'text-zinc-600'}`}>
+                                {entry.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-sm text-zinc-300 group-hover:text-white transition-colors">{entry.name}</div>
+                              {entry.companyName && <div className="text-xs text-zinc-500 uppercase">{entry.companyName}</div>}
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="text-xs text-zinc-400 font-mono">{entry.email}</div>
+                                <div className="text-xs text-zinc-500 font-mono">{entry.phone}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-zinc-400 max-w-xs truncate">{entry.projectIdea}</td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button 
+                                  onClick={() => setSelectedEntry(entry)}
+                                  className="p-2 hover:bg-purple-500/10 text-zinc-500 hover:text-purple-400 rounded transition-colors"
+                                  title="View Entry"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                <button 
+                                  onClick={() => deleteDocument('lucky_draw', entry.id)}
+                                  className="p-2 hover:bg-red-500/10 text-zinc-500 hover:text-red-400 rounded transition-colors"
+                                  title="Delete Entry"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               )}
             </div>
           )}
+
+          {/* === MODAL OVERLAY (CONTACT) === */}
+          {selectedContact && (
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+              <div className="bg-[#0A0A0A] border border-white/10 w-full max-w-2xl shadow-2xl relative">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-600 to-transparent" />
+                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-8 bg-orange-600" />
+                    <h3 className="text-xl font-black uppercase tracking-tight">Transmission Details</h3>
+                  </div>
+                  <button onClick={() => setSelectedContact(null)} className="text-zinc-500 hover:text-white transition-colors">
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="p-8 space-y-6 font-mono">
+                  <div className="grid grid-cols-2 gap-8">
+                    <div>
+                      <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Sender</label>
+                      <div className="text-lg font-bold text-white">{selectedContact.name}</div>
+                      <a href={`mailto:${selectedContact.email}`} className="text-sm text-orange-500 hover:underline">{selectedContact.email}</a>
+                    </div>
+                    <div className="text-right">
+                       <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Time</label>
+                       <div className="text-sm text-zinc-300">{formatDate(selectedContact.createdAt)}</div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/5 pt-6">
+                    <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Subject</label>
+                    <div className="text-base text-zinc-300 font-bold border-l-2 border-zinc-700 pl-4">{selectedContact.subject}</div>
+                  </div>
+                  <div className="border-t border-white/5 pt-6">
+                    <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Message</label>
+                    <div className="bg-black border border-white/10 p-6 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">
+                      {selectedContact.message}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-between items-center">
+                    <div className="flex gap-2">
+                        {selectedContact.status === 'new' && (
+                            <button
+                              onClick={() => {
+                                handleMarkContactRead(selectedContact.id);
+                                setSelectedContact(prev => prev ? {...prev, status: 'read'} : null);
+                              }}
+                              className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 border border-green-500/20 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
+                            >
+                              <CheckCircle size={14} /> Acknowledge
+                            </button>
+                        )}
+                    </div>
+                    <button
+                      onClick={() => deleteDocument('contacts', selectedContact.id)}
+                      className="flex items-center gap-2 text-red-500 hover:text-red-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
+                    >
+                      <Trash2 size={14} /> Purge Record
+                    </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* === MODAL OVERLAY (LUCKY DRAW) === */}
+          {selectedEntry && (
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+              <div className="bg-[#0A0A0A] border border-white/10 w-full max-w-2xl shadow-2xl relative">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-600 to-transparent" />
+                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-8 bg-purple-600" />
+                    <h3 className="text-xl font-black uppercase tracking-tight">Entry Details</h3>
+                  </div>
+                  <button onClick={() => setSelectedEntry(null)} className="text-zinc-500 hover:text-white transition-colors">
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="p-8 space-y-6 font-mono">
+                  <div className="grid grid-cols-2 gap-8">
+                    <div>
+                      <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Participant</label>
+                      <div className="text-lg font-bold text-white">{selectedEntry.name}</div>
+                      <div className="text-sm text-zinc-400">{selectedEntry.companyName || 'Individual'}</div>
+                    </div>
+                    <div className="text-right">
+                       <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Time</label>
+                       <div className="text-sm text-zinc-300">{formatDate(selectedEntry.createdAt)}</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
+                     <div>
+                        <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Email</label>
+                        <a href={`mailto:${selectedEntry.email}`} className="text-sm text-purple-500 hover:underline">{selectedEntry.email}</a>
+                     </div>
+                     <div>
+                        <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Phone</label>
+                        <div className="text-sm text-zinc-300">{selectedEntry.phone}</div>
+                     </div>
+                     {selectedEntry.website && (
+                       <div className="col-span-2">
+                          <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-1">Website</label>
+                          <a href={selectedEntry.website} target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-400 hover:text-white underline">{selectedEntry.website}</a>
+                       </div>
+                     )}
+                  </div>
+
+                  <div className="border-t border-white/5 pt-6">
+                    <label className="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Project Vision</label>
+                    <div className="bg-purple-900/10 border border-purple-500/20 p-6 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap rounded">
+                      {selectedEntry.projectIdea}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-between items-center">
+                    <div className="flex gap-2">
+                        {selectedEntry.status === 'pending' && (
+                             <button
+                             onClick={() => {
+                               handleMarkEntryRead(selectedEntry.id);
+                               setSelectedEntry(prev => prev ? {...prev, status: 'read'} : null);
+                             }}
+                             className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 border border-green-500/20 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
+                           >
+                             <CheckCircle size={14} /> Mark Reviewed
+                           </button>
+                        )}
+                    </div>
+                    <button
+                      onClick={() => deleteDocument('lucky_draw', selectedEntry.id)}
+                      className="flex items-center gap-2 text-red-500 hover:text-red-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all"
+                    >
+                      <Trash2 size={14} /> Discard Entry
+                    </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </div>
